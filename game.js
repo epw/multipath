@@ -5,18 +5,15 @@ var keys = {};
 
 var screen_clip = {"x": 0, "y": 0, "w": 800, "h": 600};
 
-var game_msg = null;
-
 var path_followers = [];
 
 var remaining = 0;
 
 Follower.prototype = new Game_Object;
 function Follower (activate_key, x, y, path, loop) {
-//    Game_Object.call (this, this.local_draw, 1, x, y, 0, "circle");
-    Game_Object.call (this, ["sphere.png", "tint-sphere.png"], 1, x, y, 0,
+    Game_Object.call (this, ["sphere.png", "tint-sphere.png",
+			     "stop-sphere.png"], 1, x, y, 0,
 		      "circle");
-//    this.image = load_image ("sphere.png");
     this.activate_key = activate_key;
     if (this.activate_key) {
 	remaining++;
@@ -35,6 +32,7 @@ function Follower (activate_key, x, y, path, loop) {
     }
     this.pathid = 0;
     this.finished = false;
+    this.stopped = false;
 }
 Follower.prototype.update =
     function () {
@@ -42,7 +40,8 @@ Follower.prototype.update =
 	    return;
 	}
 
-	if (keys[this.activate_key] || this.activate_key == null) {
+	if (this.stopped == false && (keys[this.activate_key]
+				      || this.activate_key == null)) {
  	    var angle = Math.atan2 (this.path[this.pathid][1] - this.y,
  				    this.path[this.pathid][0] - this.x);
  	    this.vx = this.speed * Math.cos(angle);
@@ -67,9 +66,9 @@ Follower.prototype.update =
 		continue;
 	    }
 	    if (this.touching (path_followers[f])) {
-		game_messages.push (new Game_Msg ("Collision!", "red", null,
-						  true));
-		clearInterval (main_loop);
+		game_messages.push (new Game_Msg ("Collision!", "red"));
+		this.current_frame = 2;
+		this.stopped = true;
 	    }
 	}
 
@@ -85,7 +84,6 @@ Follower.prototype.update =
 		if (remaining == 0) {
 		    game_messages.push (new Game_Msg ("All paths completed!",
 						      "white"));
-		    clearInterval (main_loop);
 		}
 	    }
 	    return;
@@ -143,7 +141,7 @@ function draw () {
 	path_followers[f].draw (ctx);
     }
 
-    draw_game_message ();
+    draw_game_message (ctx, canvas);
 }
 
 function update () {
@@ -159,7 +157,7 @@ function key_press (event) {
     keys[chr(event.which)] = true;
     switch (event.which) {
     case KEY.SPACE:
-	game_messages.push (new Game_Msg ("Space", "white", null, 30));
+	game_messages.push (new Game_Msg ("Space", "white", 30));
 	break;
     }
 }
@@ -185,7 +183,7 @@ function init () {
 						     [700, 200]]));
 
 
-    path_followers.push (new Follower(null, 50, 300, [[100, 300],
+    path_followers.push (new Follower(null, 50, 300, [[700, 300],
 						      [50, 300]], true));
 
     main_loop = setInterval (update, 1000.0 / FRAME_RATE);

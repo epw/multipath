@@ -4,6 +4,9 @@
 var FRAME_RATE = 30; // Can be set by application
 var KEY = { RIGHT:39, UP:38, LEFT:37, DOWN:40, SPACE:32, ESCAPE:27, RETURN:13};
 
+// Game variable, can be altered
+var screen_clip = {"x": 0, "y": 0, "w": 640, "h": 480};
+
 // Utility functions
 function ord (c) {
     return c.charCodeAt(0);
@@ -39,6 +42,56 @@ function remove_from_array (array, obj) {
     }
 }
 // End utility functions
+
+var game_messages = [];
+
+function draw_game_message () {
+    if (game_messages.length == 0) {
+	return;
+    }
+    if (game_messages[0].timeout == 0) {
+	game_messages.shift ();
+	if (game_messages.length == 0) {
+	    return;
+	}
+    }
+    msg = game_messages[0];
+    msg.timeout--;
+
+    var ctx = canvas.getContext ('2d');
+
+    ctx.save ();
+    ctx.fillStyle = msg.color;
+    ctx.font = msg.font;
+    strs = msg.msg.split ("\n");
+    for (s in strs) {
+	w = ctx.measureText (strs[s]);
+	ctx.fillText (strs[s], canvas.width / 2 - w.width / 2,
+		      canvas.height / 2 - 10 + s * 64);
+    }
+    ctx.restore ();
+}
+
+function Game_Msg (msg, color, font, quit_or_timeout) {
+    this.msg = msg;
+    if (color == undefined) {
+	this.color = "rgb(255, 255, 255)";
+    } else {
+	this.color = color;
+    }
+    if (font == undefined || font == null) {
+	this.font = "48px Sans";
+    } else {
+	this.font = font;
+    }
+    if (quit_or_timeout == true) {
+	this.quit = true;
+	this.timeout = -1;
+    } else {
+	this.quit = false;
+	this.timeout = quit_or_timeout;
+    }
+}
 
 function load_image (src) {
     img = new Image ();
@@ -95,7 +148,6 @@ function Game_Object (image, scale, x, y, theta, shape) {
     this.y = y;
     this.vx = 0;
     this.vy = 0;
-    this.clip = {"x": 0, "y": 0, "w": 640, "h": 480};
 
     if (scale instanceof Array) {
 	this.scalex = scale[0];
@@ -111,6 +163,7 @@ function Game_Object (image, scale, x, y, theta, shape) {
 	this.image = load_image (image);
     } else if (image instanceof Array) {
 	this.frames = load_frames (image);
+	this.current_frame = 0;
     } else if (typeof(image) == "function") {
 	this.imagefun = image;
     } else {
@@ -127,11 +180,6 @@ function Game_Object (image, scale, x, y, theta, shape) {
 	}
     }
 }
-Game_Object.prototype.choose_frame =
-    function (n) {
-	this.image = this.frames[n];
-	return this.image;
-    };
 Game_Object.prototype.w =
     function () {
 	if (typeof(this.width) == "undefined" && this.image) {
@@ -233,12 +281,13 @@ Game_Object.prototype.touching =
     };
 Game_Object.prototype.draw =
     function (ctx) {
-	if (this.right() < this.clip.x
-	    || this.left() > this.clip.x + this.clip.w
-	    || this.bottom() < this.clip.y
-	    || this.top() > this.clip.y + this.clip.h) {
+	if (this.right() < screen_clip.x
+	    || this.left() > screen_clip.x + screen_clip.w
+	    || this.bottom() < screen_clip.y
+	    || this.top() > screen_clip.y + screen_clip.h) {
 	    return;
 	}
+	this.image = this.frames[this.current_frame];
 	ctx.save ();
 	ctx.translate (Math.floor(this.x), Math.floor(this.y));
 	ctx.rotate (this.theta);

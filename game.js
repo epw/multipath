@@ -3,15 +3,31 @@ var main_loop;
 
 var keys = {};
 
+var screen_clip = {"x": 0, "y": 0, "w": 800, "h": 600};
+
+var game_msg = null;
+
 var path_followers = [];
 
+var remaining = 0;
+
 Follower.prototype = new Game_Object;
-function Follower (activate_key, x, y, path) {
-    Game_Object.call (this, this.local_draw, 1, x, y, 0, "circle");
-    this.image = load_image ("sphere.png");
+function Follower (activate_key, x, y, path, loop) {
+//    Game_Object.call (this, this.local_draw, 1, x, y, 0, "circle");
+    Game_Object.call (this, ["sphere.png", "tint-sphere.png"], 1, x, y, 0,
+		      "circle");
+//    this.image = load_image ("sphere.png");
     this.activate_key = activate_key;
+    if (this.activate_key) {
+	remaining++;
+    }
     this.start = [x, y];
-    this.speed = 2;
+    if (loop != undefined) {
+	this.loop = loop;
+    } else {
+	this.loop = false;
+    }
+    this.speed = 10;
     if (path) {
 	this.path = path;
     } else {
@@ -22,12 +38,11 @@ function Follower (activate_key, x, y, path) {
 }
 Follower.prototype.update =
     function () {
-	if (this.pathid == this.path.length) {
-	    this.finished = true;
+	if (this.finished) {
 	    return;
 	}
 
-	if (keys[this.activate_key]) {
+	if (keys[this.activate_key] || this.activate_key == null) {
  	    var angle = Math.atan2 (this.path[this.pathid][1] - this.y,
  				    this.path[this.pathid][0] - this.x);
  	    this.vx = this.speed * Math.cos(angle);
@@ -46,25 +61,49 @@ Follower.prototype.update =
 	    this.y = this.path[this.pathid][1];
 	    this.pathid++;
 	}
+
+	for (f in path_followers) {
+	    if (path_followers[f] == this) {
+		continue;
+	    }
+	    if (this.touching (path_followers[f])) {
+		game_messages.push (new Game_Msg ("Collision!", "red", null,
+						  true));
+		clearInterval (main_loop);
+	    }
+	}
+
+	if (this.pathid == this.path.length) {
+	    if (this.loop) {
+		this.pathid = 0;
+		this.x = this.start[0];
+		this.y = this.start[1];
+	    } else {
+		this.finished = true;
+		this.current_frame++;
+		remaining--;
+		if (remaining == 0) {
+		    game_messages.push (new Game_Msg ("All paths completed!",
+						      "white"));
+		    clearInterval (main_loop);
+		}
+	    }
+	    return;
+	}
     };
-Follower.prototype.local_draw =
+Follower.prototype.draw =
     function (ctx) {
-	if (this.finished) {
+	Game_Object.prototype.draw.call (this, ctx);
+
+	if (this.activate_key != null) {
 	    ctx.save ();
+	    ctx.translate (this.x, this.y);
+	    ctx.font = "20px Times New Roman";
 	    ctx.fillStyle = "rgb(255, 255, 0)";
-	    ctx.beginPath ();
-	    ctx.arc (0, 0, 22, 0, Math.PI * 2, false);
-	    ctx.fill ();
+	    w = ctx.measureText (this.activate_key);
+	    ctx.fillText(this.activate_key, -w.width / 2, 4);
 	    ctx.restore ();
 	}
-	safe_draw_image (ctx, this.image,
-			 -this.w() / 2, -this.h() / 2,
-			 this.image.width, this.image.height);
-
-	ctx.font = "20px Times New Roman";
-	ctx.fillStyle = "rgb(255, 255, 0)";
-	w = ctx.measureText (this.activate_key);
-	ctx.fillText(this.activate_key, -w.width / 2, 4);
     };
 
 function log (s) {
@@ -103,6 +142,8 @@ function draw () {
     for (f in path_followers) {
 	path_followers[f].draw (ctx);
     }
+
+    draw_game_message ();
 }
 
 function update () {
@@ -118,7 +159,7 @@ function key_press (event) {
     keys[chr(event.which)] = true;
     switch (event.which) {
     case KEY.SPACE:
-	log (path_followers[0].vx + ", " + path_followers[0].vy);
+	game_messages.push (new Game_Msg ("Space", "white", null, 30));
 	break;
     }
 }
@@ -143,6 +184,9 @@ function init () {
 						     [500, 200],
 						     [700, 200]]));
 
+
+    path_followers.push (new Follower(null, 50, 300, [[100, 300],
+						      [50, 300]], true));
 
     main_loop = setInterval (update, 1000.0 / FRAME_RATE);
 }

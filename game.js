@@ -14,7 +14,7 @@ var path_followers = [];
 var remaining = 0;
 
 var current_level = 1;
-var max_level = 2;
+var max_level = 3;
 function load_level () {
     path_followers = [];
     game_messages = [];
@@ -24,7 +24,7 @@ function load_level () {
     case 1:
 	path_followers.push (new Follower ('A', null, 50, 300,
 					   [[750, 300]]));
-	for (var x = 200; x <= 600; x += 80) {
+	for (var x = 200; x <= 600; x += 100) {
 	    path_followers.push (new Follower (null, null, x, 100,
 					       [[x, 500],
 						[x, 100]],
@@ -49,6 +49,44 @@ function load_level () {
 					   [[canvas.width / 2,
 					     canvas.height - 100],
 					    [canvas.width / 2, 100]],
+					   true));
+	break;
+    case 3:
+	path_followers.push (new Follower ('A', null, 100, canvas.height / 2,
+					   [[canvas.width - 100,
+					     canvas.height / 2]]));
+	path_followers.push (new Follower ('A', null, canvas.width / 2, 100,
+					   [[canvas.width / 2,
+					     canvas.height - 100]]));
+
+	path_followers.push (new Follower (null, null, 200, 150,
+					   [[200, canvas.height - 150],
+					    [canvas.width - 200,
+					     canvas.height - 150],
+					    [canvas.width - 200, 150],
+					    [200, 150]],
+					   true));
+	path_followers.push (new Follower (null, null, 200, canvas.height - 150,
+					   [[canvas.width - 200,
+					     canvas.height - 150],
+					    [canvas.width - 200, 150],
+					    [200, 150],
+					    [200, canvas.height - 150]],
+					   true));
+	path_followers.push (new Follower (null, null, canvas.width - 200,
+					   canvas.height - 150,
+					   [[canvas.width - 200, 150],
+					    [200, 150],
+					    [200, canvas.height - 150],
+					    [canvas.width - 200,
+					     canvas.height - 150]],
+					   true));
+	path_followers.push (new Follower (null, null, canvas.width - 200, 150,
+					   [[200, 150],
+					    [200, canvas.height - 150],
+					    [canvas.width - 200,
+					     canvas.height - 150],
+					    [canvas.width - 200, 150]],
 					   true));
 	break;
     default:
@@ -173,7 +211,11 @@ Follower.prototype.draw =
 Follower.prototype.draw_path =
     function (ctx) {
 	ctx.save ();
-	ctx.strokeStyle = "rgb(40, 40, 40)";
+	if (this.activate_key == null) {
+	    ctx.strokeStyle = "rgb(40, 40, 40)";
+	} else {
+	    ctx.strokeStyle = "rgb(100, 100, 100)";
+	}
 	ctx.lineWidth = 4;
 	ctx.lineCap = "round";
 	ctx.lineJoin = "round";

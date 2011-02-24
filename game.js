@@ -15,7 +15,9 @@ var remaining = 0;
 Follower.prototype = new Game_Object;
 function Follower (activate_key, frames, x, y, path, loop) {
     if (frames == null) {
-	frames = ["sphere.png", "tint-sphere.png", "stop-sphere.png"];
+	frames = {'0': "sphere.png", 'finished': "tint-sphere.png",
+		  'collision': "stop-sphere.png"};
+//	frames = ["sphere.png", "tint-sphere.png", "stop-sphere.png"];
     }
     Game_Object.call (this, frames, 1, x, y, 0, "circle");
     this.activate_key = activate_key;
@@ -71,9 +73,9 @@ Follower.prototype.update =
 	    }
 	    if (this.touching (path_followers[f])) {
 		game_messages.push (new Game_Msg ("Collision!", "red"));
-		this.current_frame = 2;
+		this.current_frame = "collision";
 		this.stopped = true;
-		path_followers[f].current_frame = 2;
+		path_followers[f].current_frame = "collision";
 		path_followers[f].stopped = true;
 	    }
 	}
@@ -85,7 +87,7 @@ Follower.prototype.update =
 		this.y = this.start[1];
 	    } else {
 		this.finished = true;
-		this.current_frame++;
+		this.current_frame = "finished";
 		remaining--;
 		if (remaining == 0) {
 		    if (current_level == max_level) {

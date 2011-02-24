@@ -5,12 +5,59 @@ var keys = {};
 
 var screen_clip = {"x": 0, "y": 0, "w": 800, "h": 600};
 
+var collision = false;
 var paused = false;
 var stop = false;
 
 var path_followers = [];
 
 var remaining = 0;
+
+var current_level = 1;
+var max_level = 2;
+function load_level () {
+    path_followers = [];
+    game_messages = [];
+    remaining = 0;
+
+    switch (current_level) {
+    case 1:
+	path_followers.push (new Follower ('A', null, 50, 300,
+					   [[750, 300]]));
+	for (var x = 200; x <= 600; x += 80) {
+	    path_followers.push (new Follower (null, null, x, 100,
+					       [[x, 500],
+						[x, 100]],
+					       true));
+	    path_followers[path_followers.length - 1].y = 100 + (x - 200);
+	}
+	break;
+    case 2:
+	path_followers.push (new Follower ('A', null, 200, 150,
+					   [[200, canvas.height - 150],
+					    [canvas.width - 200,
+					     canvas.height - 150],
+					    [canvas.width - 200, 150],
+					    [200, 150]]));
+
+	path_followers.push (new Follower (null, null, 100, canvas.height / 2,
+					   [[canvas.width - 100,
+					     canvas.height / 2],
+					    [100, canvas.height / 2]],
+					   true));
+	path_followers.push (new Follower (null, null, canvas.width / 2, 100,
+					   [[canvas.width / 2,
+					     canvas.height - 100],
+					    [canvas.width / 2, 100]],
+					   true));
+	break;
+    default:
+	game_messages.push (new Game_Msg("All levels completed!\n" +
+					"You win!",
+					"rgb(0, 255, 0)"));
+	stop = true;
+    }
+}
 
 Follower.prototype = new Game_Object;
 function Follower (activate_key, frames, x, y, path, loop) {
@@ -30,7 +77,7 @@ function Follower (activate_key, frames, x, y, path, loop) {
     } else {
 	this.loop = false;
     }
-    this.speed = 5;
+    this.speed = 3;
     if (path) {
 	this.path = path;
     } else {
@@ -72,7 +119,8 @@ Follower.prototype.update =
 		continue;
 	    }
 	    if (this.touching (path_followers[f])) {
-		game_messages.push (new Game_Msg ("Collision!", "red"));
+		collision = true;
+		game_messages.push (new Game_Msg ("Collision!\n(Press Space to restart)", "red"));
 		this.current_frame = "collision";
 		this.stopped = true;
 		path_followers[f].current_frame = "collision";
@@ -138,62 +186,6 @@ Follower.prototype.draw_path =
 	ctx.stroke ();
 	ctx.restore ();
     };
-
-var current_level = 1;
-var max_level = 2;
-function load_level () {
-    path_followers = [];
-    game_messages = [];
-    remaining = 0;
-
-    switch (current_level) {
-    case 1:
-	path_followers.push (new Follower ('A', null, 50, 300,
-					   [[750, 300]]));
-	var x = 200;
-	path_followers.push (new Follower (null, null, x, 100,
-					   [[x, 500],
-					    [x, 100]],
-					   true));
-	x = 400;
-	path_followers.push (new Follower (null, null, x, 100,
-					   [[x, 500],
-					    [x, 100]],
-					   true));
-	path_followers[path_followers.length - 1].y = 300;
-	x = 600;
-	path_followers.push (new Follower (null, null, x, 100,
-					   [[x, 500],
-					    [x, 100]],
-					   true));
-	path_followers[path_followers.length - 1].y = 500;
-	break;
-    case 2:
-	path_followers.push (new Follower ('A', null, 200, 150,
-					   [[200, canvas.height - 150],
-					    [canvas.width - 200,
-					     canvas.height - 150],
-					    [canvas.width - 200, 150],
-					    [200, 150]]));
-
-	path_followers.push (new Follower (null, null, 100, canvas.height / 2,
-					   [[canvas.width - 100,
-					     canvas.height / 2],
-					    [100, canvas.height / 2]],
-					   true));
-	path_followers.push (new Follower (null, null, canvas.width / 2, 100,
-					   [[canvas.width / 2,
-					     canvas.height - 100],
-					    [canvas.width / 2, 100]],
-					   true));
-	break;
-    default:
-	game_messages.push (new Game_Msg("All levels completed!\n" +
-					"You win!",
-					"rgb(0, 255, 0)"));
-	stop = true;
-    }
-}
 
 function log (s) {
     $("#log").append ("<div class=\"logentry\">");
@@ -267,7 +259,11 @@ function key_press (event) {
 	}
 	break;
     case KEY.SPACE:
-	if (remaining == 0 || stop == false) {
+	if (collision) {
+	    collision = false;
+	    current_level = 1;
+	    load_level ();
+	} else if (remaining == 0 && stop == false) {
 	    current_level++;
 	    load_level ();
 	}

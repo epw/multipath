@@ -6,6 +6,7 @@ var keys = {};
 var screen_clip = {"x": 0, "y": 0, "w": 800, "h": 600};
 
 var paused = false;
+var stop = false;
 
 var path_followers = [];
 
@@ -65,13 +66,15 @@ Follower.prototype.update =
 	}
 
 	for (f in path_followers) {
-	    if (path_followers[f] == this) {
+	    if (path_followers[f] == this || this.activate_key == null) {
 		continue;
 	    }
 	    if (this.touching (path_followers[f])) {
 		game_messages.push (new Game_Msg ("Collision!", "red"));
 		this.current_frame = 2;
 		this.stopped = true;
+		path_followers[f].current_frame = 2;
+		path_followers[f].stopped = true;
 	    }
 	}
 
@@ -85,8 +88,19 @@ Follower.prototype.update =
 		this.current_frame++;
 		remaining--;
 		if (remaining == 0) {
-		    game_messages.push (new Game_Msg ("All paths completed!",
-						      "white"));
+		    if (current_level == max_level) {
+			game_messages = [];
+			game_messages.push
+			(new Game_Msg("All levels completed!\n" +
+				      "You win!",
+				      "rgb(0, 255, 0)"));
+			stop = true;
+		    } else {
+			game_messages.push
+			(new Game_Msg("All paths completed!\n" +
+				      "(Press Space to continue)",
+				      "white"));
+		    }
 		}
 	    }
 	    return;
@@ -106,6 +120,78 @@ Follower.prototype.draw =
 	    ctx.restore ();
 	}
     };
+Follower.prototype.draw_path =
+    function (ctx) {
+	ctx.save ();
+	ctx.strokeStyle = "rgb(40, 40, 40)";
+	ctx.lineWidth = 4;
+	ctx.lineCap = "round";
+	ctx.lineJoin = "round";
+	ctx.beginPath ();
+	ctx.moveTo (path_followers[f].start[0], path_followers[f].start[1]);
+	for (path in path_followers[f].path) {
+	    ctx.lineTo (path_followers[f].path[path][0],
+			path_followers[f].path[path][1]);
+	}
+	ctx.stroke ();
+	ctx.restore ();
+    };
+
+var current_level = 1;
+var max_level = 2;
+function load_level () {
+    path_followers = [];
+    game_messages = [];
+    remaining = 0;
+
+    switch (current_level) {
+    case 1:
+	path_followers.push (new Follower ('A', null, 50, 300,
+					   [[750, 300]]));
+	var x = 200;
+	path_followers.push (new Follower (null, null, x, 100,
+					   [[x, 500],
+					    [x, 100]],
+					   true));
+	x = 400;
+	path_followers.push (new Follower (null, null, x, 100,
+					   [[x, 500],
+					    [x, 100]],
+					   true));
+	path_followers[path_followers.length - 1].y = 300;
+	x = 600;
+	path_followers.push (new Follower (null, null, x, 100,
+					   [[x, 500],
+					    [x, 100]],
+					   true));
+	path_followers[path_followers.length - 1].y = 500;
+	break;
+    case 2:
+	path_followers.push (new Follower ('A', null, 200, 150,
+					   [[200, canvas.height - 150],
+					    [canvas.width - 200,
+					     canvas.height - 150],
+					    [canvas.width - 200, 150],
+					    [200, 150]]));
+
+	path_followers.push (new Follower (null, null, 100, canvas.height / 2,
+					   [[canvas.width - 100,
+					     canvas.height / 2],
+					    [100, canvas.height / 2]],
+					   true));
+	path_followers.push (new Follower (null, null, canvas.width / 2, 100,
+					   [[canvas.width / 2,
+					     canvas.height - 100],
+					    [canvas.width / 2, 100]],
+					   true));
+	break;
+    default:
+	game_messages.push (new Game_Msg("All levels completed!\n" +
+					"You win!",
+					"rgb(0, 255, 0)"));
+	stop = true;
+    }
+}
 
 function log (s) {
     $("#log").append ("<div class=\"logentry\">");
@@ -125,30 +211,25 @@ function draw () {
     ctx.restore ();
 
     for (f in path_followers) {
-	ctx.save ();
-	ctx.strokeStyle = "rgb(96, 96, 96)";
-	ctx.lineWidth = 4;
-	ctx.lineCap = "round";
-	ctx.lineJoin = "round";
-	ctx.beginPath ();
-	ctx.moveTo (path_followers[f].start[0], path_followers[f].start[1]);
-	for (path in path_followers[f].path) {
-	    ctx.lineTo (path_followers[f].path[path][0],
-			path_followers[f].path[path][1]);
-	}
-	ctx.stroke ();
-	ctx.restore ();
+	path_followers[f].draw_path (ctx);
     }
 
     for (f in path_followers) {
 	path_followers[f].draw (ctx);
     }
 
+    ctx.save ();
+    ctx.font = "14pt Sans";
+    ctx.fillStyle = "blue";
+    w = ctx.measureText ("Level ");
+    ctx.fillText ("Level " + current_level, canvas.width - w.width - 30, 25);
+    ctx.restore ();
+
     draw_game_message (ctx, canvas);
 }
 
 function update () {
-    if (paused) {
+    if (paused || stop) {
 	stop_main_loop ();
     }
 
@@ -171,6 +252,9 @@ function key_press (event) {
     keys[chr(event.which)] = true;
     switch (event.which) {
     case ord('P'):
+	if (stop) {
+	    break;
+	}
 	if (paused) {
 	    paused = false;
 	    game_messages.shift ();
@@ -181,7 +265,17 @@ function key_press (event) {
 	}
 	break;
     case KEY.SPACE:
-	game_messages.push (new Game_Msg ("Space", "white", 30));
+	if (remaining == 0 || stop == false) {
+	    current_level++;
+	    load_level ();
+	}
+	break;
+    case KEY.RETURN:
+	n = parseInt (prompt ("Level:"));
+	if (!isNaN(n)) {
+	    current_level = n;
+	    load_level ();
+	}
 	break;
     }
 }
@@ -191,7 +285,6 @@ function key_release (event) {
     switch (event.which) {
     case KEY.ESCAPE:
 	clearInterval (main_loop);
-	log ("Stopped");
 	break;
     }
 }
@@ -199,16 +292,9 @@ function key_release (event) {
 function init () {
     canvas = document.getElementById("canvas");
 
-    path_followers.push (new Follower('A', null, 50, 50, [[400, 50],
-							  [400, 500],
-							  [700, 500]]));
-    path_followers.push (new Follower('S', null, 50, 500, [[300, 500],
-							   [500, 200],
-							   [700, 200]]));
+    current_level = 1;
+    load_level ();
 
-    path_followers.push (new Follower(null, null, 50, 300,
-				      [[700, 300],
-				       [50, 300]], true));
     start_main_loop ();
 }
 

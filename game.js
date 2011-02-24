@@ -5,15 +5,18 @@ var keys = {};
 
 var screen_clip = {"x": 0, "y": 0, "w": 800, "h": 600};
 
+var paused = false;
+
 var path_followers = [];
 
 var remaining = 0;
 
 Follower.prototype = new Game_Object;
-function Follower (activate_key, x, y, path, loop) {
-    Game_Object.call (this, ["sphere.png", "tint-sphere.png",
-			     "stop-sphere.png"], 1, x, y, 0,
-		      "circle");
+function Follower (activate_key, frames, x, y, path, loop) {
+    if (frames == null) {
+	frames = ["sphere.png", "tint-sphere.png", "stop-sphere.png"];
+    }
+    Game_Object.call (this, frames, 1, x, y, 0, "circle");
     this.activate_key = activate_key;
     if (this.activate_key) {
 	remaining++;
@@ -24,7 +27,7 @@ function Follower (activate_key, x, y, path, loop) {
     } else {
 	this.loop = false;
     }
-    this.speed = 10;
+    this.speed = 5;
     if (path) {
 	this.path = path;
     } else {
@@ -99,7 +102,7 @@ Follower.prototype.draw =
 	    ctx.font = "20px Times New Roman";
 	    ctx.fillStyle = "rgb(255, 255, 0)";
 	    w = ctx.measureText (this.activate_key);
-	    ctx.fillText(this.activate_key, -w.width / 2, 4);
+	    ctx.fillText(this.activate_key, -w.width / 2 - 1, 5);
 	    ctx.restore ();
 	}
     };
@@ -145,6 +148,10 @@ function draw () {
 }
 
 function update () {
+    if (paused) {
+	stop_main_loop ();
+    }
+
     for (f in path_followers) {
 	path_followers[f].update ();
     }
@@ -152,10 +159,27 @@ function update () {
     draw ();
 }
 
+function start_main_loop () {
+    main_loop = setInterval (update, 1000.0 / FRAME_RATE);
+}
+function stop_main_loop () {
+    clearInterval (main_loop);
+}
+
 function key_press (event) {
     keys[event.which] = true;
     keys[chr(event.which)] = true;
     switch (event.which) {
+    case ord('P'):
+	if (paused) {
+	    paused = false;
+	    game_messages.shift ();
+	    start_main_loop ();
+	} else {
+	    paused = true;
+	    game_messages.push (new Game_Msg ("Paused", "yellow"));
+	}
+	break;
     case KEY.SPACE:
 	game_messages.push (new Game_Msg ("Space", "white", 30));
 	break;
@@ -175,18 +199,17 @@ function key_release (event) {
 function init () {
     canvas = document.getElementById("canvas");
 
-    path_followers.push (new Follower('A', 50, 50, [[400, 50],
-						    [400, 500],
-						    [700, 500]]));
-    path_followers.push (new Follower('S', 50, 500, [[300, 500],
-						     [500, 200],
-						     [700, 200]]));
+    path_followers.push (new Follower('A', null, 50, 50, [[400, 50],
+							  [400, 500],
+							  [700, 500]]));
+    path_followers.push (new Follower('S', null, 50, 500, [[300, 500],
+							   [500, 200],
+							   [700, 200]]));
 
-
-    path_followers.push (new Follower(null, 50, 300, [[700, 300],
-						      [50, 300]], true));
-
-    main_loop = setInterval (update, 1000.0 / FRAME_RATE);
+    path_followers.push (new Follower(null, null, 50, 300,
+				      [[700, 300],
+				       [50, 300]], true));
+    start_main_loop ();
 }
 
 $(document).ready (init);

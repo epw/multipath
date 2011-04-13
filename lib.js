@@ -76,6 +76,7 @@ Follower.prototype.draw_path =
 	ctx.restore ();
 
 	// Only draw goal for human-controlled paths
+	// NEED TO MAKE WORK WITH NO PATH
 	if (this.activate_key != null) {
 	    ctx.save ();
 	    ctx.globalAlpha = .5;
@@ -114,8 +115,8 @@ function draw () {
     ctx.save ();
     ctx.font = "14pt Sans";
     ctx.fillStyle = "blue";
-    w = ctx.measureText ("Level ");
-    ctx.fillText ("Level " + current_level, canvas.width - w.width - 30, 25);
+    w = ctx.measureText ("Level " + current_level);
+    ctx.fillText ("Level " + current_level, canvas.width - w.width - 5, 25);
     ctx.restore ();
 
     draw_game_message (ctx, canvas);

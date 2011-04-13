@@ -140,6 +140,7 @@ function safe_draw_image (ctx, image, x, y, w, h) {
 function Game_Object (image, scale, x, y, theta, shape) {
     if (typeof (image) == "undefined") {
 	image = null;
+	return;
     }
     if (typeof (scale) == "undefined") {
 	scale = 1;
@@ -303,7 +304,9 @@ Game_Object.prototype.draw =
 	    || this.top() > screen_clip.y + screen_clip.h) {
 	    return;
 	}
-	this.image = this.frames[this.current_frame];
+	if (typeof (this.frames) != "undefined" && this.frames != []) {
+	    this.image = this.frames[this.current_frame];
+	}
 	ctx.save ();
 	ctx.translate (Math.floor(this.x), Math.floor(this.y));
 	ctx.rotate (this.theta);

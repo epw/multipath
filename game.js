@@ -17,6 +17,14 @@ var remaining = 0;
 
 var current_level = 1;
 var max_level = 3;
+
+function win () {
+    game_messages.push (new Game_Msg("All levels completed!\n" +
+				     "You win!",
+				     "rgb(0, 175, 0)"));
+    stop = true;
+}
+
 function load_level () {
     path_followers = [];
     game_messages = [];
@@ -92,10 +100,7 @@ function load_level () {
 					   true));
 	break;
     default:
-	game_messages.push (new Game_Msg("All levels completed!\n" +
-					"You win!",
-					"rgb(0, 200, 0)"));
-	stop = true;
+	win ();
     }
 }
 
@@ -180,11 +185,7 @@ Follower.prototype.update =
 		if (remaining == 0) {
 		    if (current_level == max_level) {
 			game_messages = [];
-			game_messages.push
-			(new Game_Msg("All levels completed!\n" +
-				      "You win!",
-				      "rgb(0, 200, 0)"));
-			stop = true;
+			win ();
 		    } else {
 			game_messages.push
 			(new Game_Msg("All paths completed!\n" +

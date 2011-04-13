@@ -11,6 +11,8 @@ var stop = false;
 
 var path_followers = [];
 
+var goal;
+
 var remaining = 0;
 
 var current_level = 1;
@@ -92,7 +94,7 @@ function load_level () {
     default:
 	game_messages.push (new Game_Msg("All levels completed!\n" +
 					"You win!",
-					"rgb(0, 255, 0)"));
+					"rgb(0, 200, 0)"));
 	stop = true;
     }
 }
@@ -181,7 +183,7 @@ Follower.prototype.update =
 			game_messages.push
 			(new Game_Msg("All levels completed!\n" +
 				      "You win!",
-				      "rgb(0, 255, 0)"));
+				      "rgb(0, 200, 0)"));
 			stop = true;
 		    } else {
 			game_messages.push
@@ -201,7 +203,7 @@ Follower.prototype.draw =
 	if (this.activate_key != null) {
 	    ctx.save ();
 	    ctx.translate (this.x, this.y);
-	    ctx.font = "20px Times New Roman";
+	    ctx.font = "20px Sans";
 	    ctx.fillStyle = "rgb(255, 255, 0)";
 	    w = ctx.measureText (this.activate_key);
 	    ctx.fillText(this.activate_key, -w.width / 2 - 1, 5);
@@ -211,6 +213,8 @@ Follower.prototype.draw =
 Follower.prototype.draw_path =
     function (ctx) {
 	ctx.save ();
+
+	// Color of path depends on whether it is human-controlled.
 	if (this.activate_key == null) {
 	    ctx.strokeStyle = "rgb(40, 40, 40)";
 	} else {
@@ -220,13 +224,23 @@ Follower.prototype.draw_path =
 	ctx.lineCap = "round";
 	ctx.lineJoin = "round";
 	ctx.beginPath ();
-	ctx.moveTo (path_followers[f].start[0], path_followers[f].start[1]);
-	for (path in path_followers[f].path) {
-	    ctx.lineTo (path_followers[f].path[path][0],
-			path_followers[f].path[path][1]);
+	ctx.moveTo (this.start[0], this.start[1]);
+	for (path in this.path) {
+	    ctx.lineTo (this.path[path][0],
+			this.path[path][1]);
 	}
 	ctx.stroke ();
 	ctx.restore ();
+
+	// Only draw goal for human-controlled paths
+	if (this.activate_key != null) {
+	    ctx.save ();
+	    ctx.globalAlpha = .5;
+	    ctx.translate (this.path[this.path.length-1][0],
+			   this.path[this.path.length-1][1]);
+	    ctx.drawImage (goal, -goal.width / 2, -goal.height / 2);
+	    ctx.restore ();
+	}
     };
 
 function log (s) {
@@ -331,6 +345,8 @@ function key_release (event) {
 
 function init () {
     canvas = document.getElementById("canvas");
+
+    goal = load_image ("goal.png");
 
     current_level = 1;
     load_level ();

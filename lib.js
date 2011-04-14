@@ -77,7 +77,7 @@ Follower.prototype.draw_path =
 
 	// Only draw goal for human-controlled paths
 	// NEED TO MAKE WORK WITH NO PATH
-	if (this.activate_key != null) {
+	if (this.activate_key != null && this.path.length > 0) {
 	    ctx.save ();
 	    ctx.globalAlpha = .5;
 	    ctx.translate (this.path[this.path.length-1][0],

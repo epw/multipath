@@ -2,6 +2,9 @@
 <head>
 <title>Multi-path Editor</title>
 <link rel="stylesheet" type="text/css" href="style.css" />
+<style type="text/css">
+div.controls { float: left }
+</style>
 <script type="text/javascript" src="jquery-1.5.min.js"></script>
 <script type="text/javascript" src="canvas-game.js"></script>
 <script type="text/javascript" src="lib.js"></script>
@@ -9,6 +12,11 @@
 </head>
 <body>
 <h1>Multi-path Editor</h1>
+<div class="controls">
+<div>
+<input type="button" id="newpath" value="New path" />
+</div>
+</div>
 <div class="canvas">
 <canvas id="canvas" width="800" height="600"></canvas>
 </div>

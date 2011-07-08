@@ -7,6 +7,8 @@ var activationkey;
 
 var editing;
 
+var making_loops = false;
+
 var deleting = false;
 
 function save () {
@@ -91,6 +93,27 @@ function start_path (x, y) {
     canvas.style.cursor = "auto";
 }
 
+function make_loops (evt) {
+    if (making_loops) {
+	making_loops = false;
+	$("#makeloops").css ("border-style", "");
+	for (f in path_followers) {
+	    if (path_followers[f].loop) {
+		path_followers[f].current_frame = 0;
+	    }
+	}
+    } else {
+	making_loops = true;
+	$("#makeloops").css ("border-style", "inset");
+
+	for (f in path_followers) {
+	    if (path_followers[f].loop) {
+		path_followers[f].current_frame = "finished";
+	    }
+	}
+    }
+}
+
 function remove_last_vertex (evt) {
     if (editing.path.length > 1) {
 	editing.path.pop ();
@@ -130,6 +153,19 @@ function mouse_down (event) {
 	    end_path ();
 	    return;
 	}
+    } else if (making_loops) {
+	for (f in path_followers) {
+	    if (path_followers[f].point_in (pos)) {
+		if (path_followers[f].loop) {
+		    path_followers[f].loop = false;
+		    path_followers[f].current_frame = 0;
+		} else {
+		    path_followers[f].loop = true;
+		    path_followers[f].current_frame = "finished";
+		}
+	    }
+	}
+	save ();
     } else if (deleting) {
 	for (f in path_followers) {
 	    if (path_followers[f].point_in (pos)) {
@@ -137,6 +173,7 @@ function mouse_down (event) {
 		break;
 	    }
 	}
+	save ();
     }
 }
 
@@ -166,6 +203,18 @@ function mouse_motion (event) {
 	}
 	editing.path[editing.path.length-1][0] = pos[0];
 	editing.path[editing.path.length-1][1] = pos[1];
+    } else if (making_loops) {
+	var over_sphere = false;
+	for (f in path_followers) {
+	    if (path_followers[f].point_in (pos)) {
+		over_sphere = true;
+	    }
+	}
+	if (over_sphere) {
+	    canvas.style.cursor = "pointer";
+	} else {
+	    canvas.style.cursor = "auto";
+	}
     } else if (deleting) {
 	for (f in path_followers) {
 	    if (path_followers[f].point_in (pos)) {
@@ -255,6 +304,7 @@ function init () {
     editing = null;
 
     $("#newpath").click (prepare_new_path);
+    $("#makeloops").click (make_loops);
     $("#deletepath").click (delete_choose);
     $("#clear").click (function () {
 			   if (confirm ("Really clear level?")) {

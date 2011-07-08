@@ -7,7 +7,8 @@ var activationkey;
 
 var editing;
 
-var ANGLE_STEPS = 8;
+var angle_lock = true;
+var ANGLE_STEPS = 16;
 function limit_line_angle (start_x, start_y, cur_x, cur_y) {
     var theta = -Math.atan2 (cur_y - start_y, cur_x - start_x) + Math.PI / 2;
 //    console.log (theta);
@@ -72,13 +73,17 @@ function mouse_down (event) {
     if (defining_new_path) {
 	start_path (mouse_x, mouse_y);
     } else if (editing != null) {
-	if (editing.path.length < 2) {
-	    pos = limit_line_angle (editing.start[0], editing.start[1],
-				    mouse_x, mouse_y);
+	if (angle_lock) {
+	    if (editing.path.length < 2) {
+		pos = limit_line_angle (editing.start[0], editing.start[1],
+					mouse_x, mouse_y);
+	    } else {
+		pos = limit_line_angle (editing.path[editing.path.length-2][0],
+					editing.path[editing.path.length-2][1],
+					mouse_x, mouse_y);
+	    }
 	} else {
-	    pos = limit_line_angle (editing.path[editing.path.length-2][0],
-				    editing.path[editing.path.length-2][1],
-				    mouse_x, mouse_y);
+	    pos = [mouse_x, mouse_y];
 	}
 	editing.path.push (pos);
 	if (event.which == 2) {
@@ -93,13 +98,17 @@ function mouse_motion (event) {
     var mouse_y = event.offsetY - 5;
 
     if (editing != null) {
-	if (editing.path.length < 2) {
-	    pos = limit_line_angle (editing.start[0], editing.start[1],
-				    mouse_x, mouse_y);
+	if (angle_lock) {
+	    if (editing.path.length < 2) {
+		pos = limit_line_angle (editing.start[0], editing.start[1],
+					mouse_x, mouse_y);
+	    } else {
+		pos = limit_line_angle (editing.path[editing.path.length-2][0],
+					editing.path[editing.path.length-2][1],
+					mouse_x, mouse_y);
+	    }
 	} else {
-	    pos = limit_line_angle (editing.path[editing.path.length-2][0],
-				    editing.path[editing.path.length-2][1],
-				    mouse_x, mouse_y);
+	    pos = [mouse_x, mouse_y];
 	}
 	editing.path[editing.path.length-1][0] = pos[0];
 	editing.path[editing.path.length-1][1] = pos[1];
@@ -110,6 +119,9 @@ function key_press (event) {
     keys[event.which] = true;
     keys[chr(event.which)] = true;
     switch (event.which) {
+    case KEY.SHIFT:
+	angle_lock = false;
+	break;
     default:
 	break;
     }
@@ -134,6 +146,9 @@ function key_release (event) {
     case KEY.SPACE:
 	activationkey = null;
 	$("#activationkey").html ("");
+	break;
+    case KEY.SHIFT:
+	angle_lock = true;
 	break;
     }
 }

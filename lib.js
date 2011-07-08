@@ -59,7 +59,7 @@ Follower.prototype.draw_path =
 
 	// Color of path depends on whether it is human-controlled.
 	if (this.activate_key == null) {
-	    ctx.strokeStyle = "rgb(40, 40, 40)";
+	    ctx.strokeStyle = "rgb(90, 90, 90)";
 	} else {
 	    ctx.strokeStyle = "rgb(100, 100, 100)";
 	}

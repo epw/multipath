@@ -14,10 +14,14 @@ div.controls { float: left }
 <h1>Multi-path Editor</h1>
 <div class="controls">
 <div>
-<input type="button" id="newpath" value="New path" />
+<input type="button" id="newpath" value="New path [N]" />
 </div>
 <div>
-<h4>Activation key:<br />
+<!--<input type="button" id="endpath" value="Finish path [.]" disabled="disabled" />-->
+<span id="endpath">Finish path [.] or middle-click</span>
+</div>
+<div>
+<h4>Activation key ([Space] for automated):<br />
 <span id="activationkey"></span></h4>
 </div>
 </div>

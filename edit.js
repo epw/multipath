@@ -55,6 +55,10 @@ function end_path (evt) {
     $("#endpath").attr ('disabled', 'disabled');
 }
 
+function delete_choose (evt) {
+    choosing_to_delete = true;
+}
+
 function start_path (x, y) {
     path_followers.push (new Follower (activationkey, null, x, y, [[x, y]]));
     editing = path_followers[path_followers.length - 1];
@@ -112,7 +116,9 @@ function mouse_motion (event) {
 	}
 	editing.path[editing.path.length-1][0] = pos[0];
 	editing.path[editing.path.length-1][1] = pos[1];
-    }
+    } else if (choosing_to_delete) {
+	for (f in path_followers) {
+	    if 
 }
 
 function key_press (event) {
@@ -167,6 +173,7 @@ function init () {
 
     $("#newpath").click (prepare_new_path);
     $("#endpath").click (end_path);
+    $("#deletepath").click (delete_choose);
 
     start_main_loop ();
 }

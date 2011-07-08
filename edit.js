@@ -9,6 +9,18 @@ var editing;
 
 var deleting = false;
 
+function save () {
+    var saved_level = [];
+    for (f in path_followers) {
+	saved_level.push ({'start': path_followers[f].start,
+			   'activate_key': path_followers[f].activate_key,
+			   'loop': path_followers[f].loop,
+			   'path': path_followers[f].path});
+    }
+    $("#data").val (JSON.stringify (saved_level));
+    $("#savedlevel").css ("display", "block");
+}
+
 var angle_lock = true;
 var ANGLE_STEPS = 16;
 function limit_line_angle (start_x, start_y, cur_x, cur_y) {
@@ -39,11 +51,14 @@ function limit_line_angle (start_x, start_y, cur_x, cur_y) {
 }
 
 function prepare_new_path (evt) {
+    if (deleting) {
+	delete_choose (null);
+    }
+
     defining_new_path = true;
     canvas.style.cursor = "crosshair";
 
     $("#newpath").attr ('disabled', 'disabled');
-    $("#endpath").attr ('disabled', '');
 }
 function end_path (evt) {
 /* Code for finish path as button. Does not seem to work.
@@ -54,7 +69,9 @@ function end_path (evt) {
 */
     editing = null;
     $("#newpath").attr ('disabled', '');
-    $("#endpath").attr ('disabled', 'disabled');
+    activationkey = null;
+
+    save ();
 }
 
 function delete_choose (evt) {
@@ -87,6 +104,11 @@ function mouse_down (event) {
     var pos = [mouse_x, mouse_y];
 
     if (event.which == 3) {
+	return;
+    }
+
+    if (!between (pos[0], 0, canvas.width)
+	|| !between (pos[1], 0, canvas.height)) {
 	return;
     }
 
@@ -124,6 +146,11 @@ function mouse_motion (event) {
 
     var pos = [mouse_x, mouse_y];
 
+    if (!between (pos[0], 0, canvas.width)
+	|| !between (pos[1], 0, canvas.height)) {
+	return;
+    }
+
     if (editing != null) {
 	if (angle_lock) {
 	    if (editing.path.length < 2) {
@@ -150,16 +177,23 @@ function mouse_motion (event) {
     }
 }
 
-function save (evt) {
-    var saved_level = [];
-    for (f in path_followers) {
-	saved_level.push ({'start': path_followers[f].start,
-			   'activate_key': path_followers[f].activate_key,
-			   'loop': path_followers[f].loop,
-			   'path': path_followers[f].path});
+function clear (evt) {
+    $("#data").val ("");
+    $("#data").attr ("readonly", "");
+    path_followers = [];
+}
+
+function load (evt) {
+    $("#data").attr ("readonly", "readonly");
+
+    var data = JSON.parse ($("#data").val());
+
+    for (d in data) {
+	var f = new Follower (data[d]["activate_key"], null,data[d]["start"][0],
+			      data[d]["start"][1], data[d]["path"],
+			      data[d]["loop"]);
+	path_followers.push (f);
     }
-    $("#data").val (JSON.stringify (saved_level));
-    $("#savedlevel").css ("display", "block");
 }
 
 function key_press (event) {
@@ -177,15 +211,24 @@ function key_release (event) {
     keys[event.which] = false;
     keys[chr(event.which)] = false;
     if (POSSIBLE_KEYS.indexOf (chr(event.which)) != -1) {
-	activationkey = chr(event.which);
-	$("#activationkey").html (chr(event.which));
+	if (!keys[KEY.CONTROL]) {
+	    activationkey = chr(event.which);
+	    prepare_new_path ();
+	}
     }
     switch (event.which) {
     case KEY.ESCAPE:
 	clearInterval (main_loop);
 	break;
     case ord('N'):
-	prepare_new_path ();
+	if (defining_new_path == false) {
+	    prepare_new_path ();
+	} else {
+	    defining_new_path = false;
+	    $("#newpath").attr ('disabled', '');
+	    canvas.style.cursor = "auto";
+	    activationkey = null;
+	}
 	break;	
     case KEY.MINUS:
 	remove_last_vertex ();
@@ -193,10 +236,6 @@ function key_release (event) {
     case KEY.PERIOD:
 	end_path ();
 	break;	
-    case KEY.SPACE:
-	activationkey = null;
-	$("#activationkey").html ("");
-	break;
     case KEY.SHIFT:
 	angle_lock = true;
 	break;
@@ -216,9 +255,13 @@ function init () {
     editing = null;
 
     $("#newpath").click (prepare_new_path);
-    $("#endpath").click (end_path);
     $("#deletepath").click (delete_choose);
-    $("#save").click (save);
+    $("#clear").click (function () {
+			   if (confirm ("Really clear level?")) {
+			       clear ();
+			   }
+		       });
+    $("#load").click (load);
 
     start_main_loop ();
 }

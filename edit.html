@@ -3,7 +3,11 @@
 <title>Multi-path Editor</title>
 <link rel="stylesheet" type="text/css" href="style.css" />
 <style type="text/css">
-div.controls { float: left }
+div.canvas { text-align: left }
+
+div.controls { float: left; margin-right: 2em }
+#savedlevel { display: none }
+#data { width: 50%; height: 10em }
 </style>
 <script type="text/javascript" src="jquery-1.5.min.js"></script>
 <script type="text/javascript" src="canvas-game.js"></script>
@@ -30,12 +34,17 @@ div.controls { float: left }
     <h4>Activation key ([Space] for automated):<br />
       <span id="activationkey"></span></h4>
   </div>
+  <div>
+    <input type="button" id="save" value="Save" />
+  </div>
 </div>
 <div class="canvas">
 <canvas id="canvas" width="800" height="600"></canvas>
 </div>
-<div class="loglabel">Log</div>
-<div id="log">
+<div id="savedlevel">
+<div>Saved level</div>
+<textarea id="data" readonly="readonly">
+</textarea>
 </div>
 </body>
 </html>

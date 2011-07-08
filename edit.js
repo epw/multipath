@@ -35,7 +35,7 @@ function limit_line_angle (start_x, start_y, cur_x, cur_y) {
     var x = dist * Math.sin (radian_step * i);
     var y = dist * Math.cos (radian_step * i);
 
-    return [start_x + x, start_y + y];
+    return [Math.round (start_x + x), Math.round (start_y + y)];
 }
 
 function prepare_new_path (evt) {
@@ -74,7 +74,7 @@ function start_path (x, y) {
     canvas.style.cursor = "auto";
 }
 
-function remove_last_vertex () {
+function remove_last_vertex (evt) {
     if (editing.path.length > 1) {
 	editing.path.pop ();
     }
@@ -150,6 +150,18 @@ function mouse_motion (event) {
     }
 }
 
+function save (evt) {
+    var saved_level = [];
+    for (f in path_followers) {
+	saved_level.push ({'start': path_followers[f].start,
+			   'activate_key': path_followers[f].activate_key,
+			   'loop': path_followers[f].loop,
+			   'path': path_followers[f].path});
+    }
+    $("#data").val (JSON.stringify (saved_level));
+    $("#savedlevel").css ("display", "block");
+}
+
 function key_press (event) {
     keys[event.which] = true;
     keys[chr(event.which)] = true;
@@ -206,6 +218,7 @@ function init () {
     $("#newpath").click (prepare_new_path);
     $("#endpath").click (end_path);
     $("#deletepath").click (delete_choose);
+    $("#save").click (save);
 
     start_main_loop ();
 }

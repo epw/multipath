@@ -74,6 +74,12 @@ function start_path (x, y) {
     canvas.style.cursor = "auto";
 }
 
+function remove_last_vertex () {
+    if (editing.path.length > 1) {
+	editing.path.pop ();
+    }
+}
+
 function mouse_down (event) {
     var mouse_x = event.offsetX - 5;
     var mouse_y = event.offsetY - 5;
@@ -168,6 +174,9 @@ function key_release (event) {
 	break;
     case ord('N'):
 	prepare_new_path ();
+	break;	
+    case KEY.MINUS:
+	remove_last_vertex ();
 	break;	
     case KEY.PERIOD:
 	end_path ();

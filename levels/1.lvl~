@@ -1,0 +1,9 @@
+path_followers.push (new Follower ('A', null, 50, 300,
+				   [[750, 300]]));
+for (var x = 200; x <= 600; x += 100) {
+    path_followers.push (new Follower (null, null, x, 100,
+				       [[x, 500],
+					[x, 100]],
+				       true));
+    path_followers[path_followers.length - 1].y = 100 + (x - 200);
+}

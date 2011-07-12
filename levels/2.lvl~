@@ -1,0 +1,18 @@
+	path_followers.push (new Follower ('A', null, 200, 150,
+					   [[200, canvas.height - 150],
+					    [canvas.width - 200,
+					     canvas.height - 150],
+					    [canvas.width - 200, 150],
+					    [200, 150]]));
+
+	path_followers.push (new Follower (null, null, 100, canvas.height / 2,
+					   [[canvas.width - 100,
+					     canvas.height / 2],
+					    [100, canvas.height / 2]],
+					   true));
+	path_followers.push (new Follower (null, null, canvas.width / 2, 100,
+					   [[canvas.width / 2,
+					     canvas.height - 100],
+					    [canvas.width / 2, 100]],
+					   true));
+

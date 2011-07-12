@@ -13,83 +13,22 @@ function win () {
     stop = true;
 }
 
-function load_level () {
+function parse_level (data, jqxhr) {
+    console.log (jqxhr);
+
+    if (data.search ("/* JavaScript */") == 0) {
+	eval (data);
+    } else {
+	path_followers = load_level (data);
+    }
+}
+
+function lookup_load_level () {
     path_followers = [];
     game_messages = [];
     remaining = 0;
 
-    switch (current_level) {
-    case 1:
-	path_followers.push (new Follower ('A', null, 50, 300,
-					   [[750, 300]]));
-	for (var x = 200; x <= 600; x += 100) {
-	    path_followers.push (new Follower (null, null, x, 100,
-					       [[x, 500],
-						[x, 100]],
-					       true));
-	    path_followers[path_followers.length - 1].y = 100 + (x - 200);
-	}
-	break;
-    case 2:
-	path_followers.push (new Follower ('A', null, 200, 150,
-					   [[200, canvas.height - 150],
-					    [canvas.width - 200,
-					     canvas.height - 150],
-					    [canvas.width - 200, 150],
-					    [200, 150]]));
-
-	path_followers.push (new Follower (null, null, 100, canvas.height / 2,
-					   [[canvas.width - 100,
-					     canvas.height / 2],
-					    [100, canvas.height / 2]],
-					   true));
-	path_followers.push (new Follower (null, null, canvas.width / 2, 100,
-					   [[canvas.width / 2,
-					     canvas.height - 100],
-					    [canvas.width / 2, 100]],
-					   true));
-	break;
-    case 3:
-	path_followers.push (new Follower ('A', null, 100, canvas.height / 2,
-					   [[canvas.width - 100,
-					     canvas.height / 2]]));
-	path_followers.push (new Follower ('A', null, canvas.width / 2, 100,
-					   [[canvas.width / 2,
-					     canvas.height - 100]]));
-
-	path_followers.push (new Follower (null, null, 200, 150,
-					   [[200, canvas.height - 150],
-					    [canvas.width - 200,
-					     canvas.height - 150],
-					    [canvas.width - 200, 150],
-					    [200, 150]],
-					   true));
-	path_followers.push (new Follower (null, null, 200, canvas.height - 150,
-					   [[canvas.width - 200,
-					     canvas.height - 150],
-					    [canvas.width - 200, 150],
-					    [200, 150],
-					    [200, canvas.height - 150]],
-					   true));
-	path_followers.push (new Follower (null, null, canvas.width - 200,
-					   canvas.height - 150,
-					   [[canvas.width - 200, 150],
-					    [200, 150],
-					    [200, canvas.height - 150],
-					    [canvas.width - 200,
-					     canvas.height - 150]],
-					   true));
-	path_followers.push (new Follower (null, null, canvas.width - 200, 150,
-					   [[200, 150],
-					    [200, canvas.height - 150],
-					    [canvas.width - 200,
-					     canvas.height - 150],
-					    [canvas.width - 200, 150]],
-					   true));
-	break;
-    default:
-	win ();
-    }
+    $.post ('levels/' + current_level + '.lvl', parse_level);
 }
 
 Follower.prototype.update =
@@ -179,17 +118,17 @@ function key_press (event) {
 	if (collision) {
 	    collision = false;
 	    current_level = 1;
-	    load_level ();
+	    lookup_load_level ();
 	} else if (remaining == 0 && stop == false) {
 	    current_level++;
-	    load_level ();
+	    lookup_load_level ();
 	}
 	break;
     case KEY.RETURN:
 	n = parseInt (prompt ("Level:"));
 	if (!isNaN(n)) {
 	    current_level = n;
-	    load_level ();
+	    lookup_load_level ();
 	}
 	break;
     }
@@ -210,7 +149,7 @@ function init () {
     goal = load_image ("goal.png");
 
     current_level = 1;
-    load_level ();
+    lookup_load_level ();
 
     start_main_loop ();
 }

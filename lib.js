@@ -87,6 +87,21 @@ Follower.prototype.draw_path =
 	}
     };
 
+function load_level (string) {
+    var data = JSON.parse (string);
+
+    var path_followers = [];
+
+    for (d in data) {
+	var f = new Follower (data[d]["activate_key"], null,data[d]["start"][0],
+			      data[d]["start"][1], data[d]["path"],
+			      data[d]["loop"]);
+	path_followers.push (f);
+    }
+
+    return path_followers;
+}
+
 function log (s) {
     $("#log").append ("<div class=\"logentry\">");
     $("#log").append ("<span class=\"logtimestamp\">"

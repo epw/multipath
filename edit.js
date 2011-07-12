@@ -235,14 +235,7 @@ function clear (evt) {
 function load (evt) {
     $("#data").attr ("readonly", "readonly");
 
-    var data = JSON.parse ($("#data").val());
-
-    for (d in data) {
-	var f = new Follower (data[d]["activate_key"], null,data[d]["start"][0],
-			      data[d]["start"][1], data[d]["path"],
-			      data[d]["loop"]);
-	path_followers.push (f);
-    }
+    path_followers = load_level ($("#data").val());
 }
 
 function key_press (event) {

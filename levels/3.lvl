@@ -1,0 +1,35 @@
+path_followers.push (new Follower ('A', null, 100, canvas.height / 2,
+				   [[canvas.width - 100,
+				     canvas.height / 2]]));
+path_followers.push (new Follower ('A', null, canvas.width / 2, 100,
+				   [[canvas.width / 2,
+				     canvas.height - 100]]));
+path_followers.push (new Follower (null, null, 200, 150,
+				   [[200, canvas.height - 150],
+				    [canvas.width - 200,
+				     canvas.height - 150],
+				    [canvas.width - 200, 150],
+				    [200, 150]],
+				   true));
+path_followers.push (new Follower (null, null, 200, canvas.height - 150,
+				   [[canvas.width - 200,
+				     canvas.height - 150],
+				    [canvas.width - 200, 150],
+				    [200, 150],
+				    [200, canvas.height - 150]],
+				   true));
+path_followers.push (new Follower (null, null, canvas.width - 200,
+				   canvas.height - 150,
+				   [[canvas.width - 200, 150],
+				    [200, 150],
+				    [200, canvas.height - 150],
+				    [canvas.width - 200,
+				     canvas.height - 150]],
+				   true));
+path_followers.push (new Follower (null, null, canvas.width - 200, 150,
+				   [[200, 150],
+				    [200, canvas.height - 150],
+				    [canvas.width - 200,
+				     canvas.height - 150],
+				    [canvas.width - 200, 150]],
+				   true));

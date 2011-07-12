@@ -56,7 +56,7 @@ Follower.prototype.draw_path =
 
 	// Color of path depends on whether it is human-controlled.
 	if (this.activate_key == null) {
-	    ctx.strokeStyle = "rgb(90, 90, 90)";
+	    ctx.strokeStyle = "rgb(60, 60, 60)";
 	} else {
 	    ctx.strokeStyle = "rgb(100, 100, 100)";
 	}
@@ -106,6 +106,8 @@ function log (s) {
     $("#log").append (s  + "</div>\n");
 }
 
+var background_hooks = [];
+
 function draw () {
     ctx = canvas.getContext ('2d');
 
@@ -115,6 +117,10 @@ function draw () {
     ctx.fillRect (0, 0, canvas.width, canvas.height);
 
     ctx.restore ();
+
+    for (fun in background_hooks) {
+	background_hooks[fun] (ctx);
+    }
 
     for (f in path_followers) {
 	path_followers[f].draw_path (ctx);

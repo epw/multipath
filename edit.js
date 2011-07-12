@@ -7,6 +7,9 @@ var activationkey;
 
 var editing;
 
+var grid = false;
+var grid_size = 25;
+
 var making_loops = false;
 
 var deleting = false;
@@ -21,6 +24,37 @@ function save () {
     }
     $("#data").val (JSON.stringify (saved_level));
     $("#savedlevel").css ("display", "block");
+}
+
+function press_button (id) {
+    $(id).css ("border-style", "inset");
+}
+function release_button (id) {
+    $(id).css ("border-style", "");
+}
+
+function snap_to_grid (pos) {
+    var x = pos[0];
+    var y = pos[1];
+
+    if (grid && !keys[KEY.SHIFT]) {
+	var floor;
+
+	floor = Math.floor (x / grid_size) * grid_size;
+	if (x - floor < grid_size / 2) {
+	    x = floor;
+	} else {
+	    x = floor + grid_size;
+	}
+
+	floor = Math.floor (y / grid_size) * grid_size;
+	if (y - floor < grid_size / 2) {
+	    y = floor;
+	} else {
+	    y = floor + grid_size;
+	}
+    }
+    return [x, y];
 }
 
 var angle_lock = true;
@@ -79,10 +113,10 @@ function end_path (evt) {
 function delete_choose (evt) {
     if (deleting) {
 	deleting = false;
-	$("#deletepath").css ("border-style", "");
+	release_button ("#deletepath");
     } else {
 	deleting = true;
-	$("#deletepath").css ("border-style", "inset");
+	press_button ("#deletepath");
     }
 }
 
@@ -93,10 +127,20 @@ function start_path (x, y) {
     canvas.style.cursor = "auto";
 }
 
+function toggle_grid (evt) {
+    if (grid) {
+	grid = false;
+	release_button ("#grid");
+    } else {
+	grid = true;
+	press_button ("#grid");
+    }
+}
+
 function make_loops (evt) {
     if (making_loops) {
 	making_loops = false;
-	$("#makeloops").css ("border-style", "");
+	release_button ("#makeloops");
 	for (f in path_followers) {
 	    if (path_followers[f].loop) {
 		path_followers[f].current_frame = 0;
@@ -104,7 +148,7 @@ function make_loops (evt) {
 	}
     } else {
 	making_loops = true;
-	$("#makeloops").css ("border-style", "inset");
+	press_button ("#makeloops");
 
 	for (f in path_followers) {
 	    if (path_followers[f].loop) {
@@ -136,9 +180,14 @@ function mouse_down (event) {
     }
 
     if (defining_new_path) {
-	start_path (mouse_x, mouse_y);
+	pos = snap_to_grid (pos);
+	start_path (pos[0], pos[1]);
     } else if (editing != null) {
-	if (angle_lock) {
+	if (event.which == 2) {
+	    end_path ();
+	    return;
+	}
+	if (!grid && angle_lock) {
 	    if (editing.path.length < 2) {
 		pos = limit_line_angle (editing.start[0], editing.start[1],
 					pos[0], pos[1]);
@@ -148,11 +197,8 @@ function mouse_down (event) {
 					pos[0], pos[1]);
 	    }
 	}
+	pos = snap_to_grid (pos);
 	editing.path.push (pos);
-	if (event.which == 2) {
-	    end_path ();
-	    return;
-	}
     } else if (making_loops) {
 	for (f in path_followers) {
 	    if (path_followers[f].point_in (pos)) {
@@ -167,13 +213,18 @@ function mouse_down (event) {
 	}
 	save ();
     } else if (deleting) {
+	var deleted_one = false;
 	for (f in path_followers) {
 	    if (path_followers[f].point_in (pos)) {
 		path_followers.splice (f, 1);
+		deleted_one = true;
 		break;
 	    }
 	}
-	save ();
+	if (deleted_one) {
+	    delete_choose ();
+	    save ();
+	}
     }
 }
 
@@ -189,7 +240,7 @@ function mouse_motion (event) {
     }
 
     if (editing != null) {
-	if (angle_lock) {
+	if (!grid && angle_lock) {
 	    if (editing.path.length < 2) {
 		pos = limit_line_angle (editing.start[0], editing.start[1],
 					pos[0], pos[1]);
@@ -201,6 +252,7 @@ function mouse_motion (event) {
 	} else {
 	    pos = [mouse_x, mouse_y];
 	}
+	pos = snap_to_grid (pos);
 	editing.path[editing.path.length-1][0] = pos[0];
 	editing.path[editing.path.length-1][1] = pos[1];
     } else if (making_loops) {
@@ -222,6 +274,26 @@ function mouse_motion (event) {
 	    } else {
 		path_followers[f].current_frame = 0;		
 	    }
+	}
+    }
+}
+
+function draw_grid (ctx) {
+    if (grid) {
+	ctx.save ();
+	ctx.strokeStyle = "rgb(50, 50, 50)";
+	ctx.lineWidth = 1;
+	for (var x = 0; x < canvas.width; x += grid_size) {
+	    ctx.beginPath ();
+	    ctx.moveTo (x, 0);
+	    ctx.lineTo (x, canvas.height);
+	    ctx.stroke ();
+	}
+	for (var y = 0; y < canvas.height; y += grid_size) {
+	    ctx.beginPath ();
+	    ctx.moveTo (0, y);
+	    ctx.lineTo (canvas.width, y);
+	    ctx.stroke ();
 	}
     }
 }
@@ -263,8 +335,9 @@ function key_release (event) {
 	clearInterval (main_loop);
 	break;
     case ord('N'):
-	if (defining_new_path == false) {
+	if (defining_new_path == false && editing == null) {
 	    prepare_new_path ();
+	} else if (editing == null) {
 	} else {
 	    defining_new_path = false;
 	    $("#newpath").attr ('disabled', '');
@@ -272,6 +345,12 @@ function key_release (event) {
 	    activationkey = null;
 	}
 	break;	
+    case ord('G'):
+	toggle_grid ();
+	break;
+    case KEY.DELETE:
+	delete_choose ();
+	break;
     case KEY.MINUS:
 	remove_last_vertex ();
 	break;	
@@ -297,6 +376,7 @@ function init () {
     editing = null;
 
     $("#newpath").click (prepare_new_path);
+    $("#grid").click (toggle_grid);
     $("#makeloops").click (make_loops);
     $("#deletepath").click (delete_choose);
     $("#clear").click (function () {
@@ -305,6 +385,8 @@ function init () {
 			   }
 		       });
     $("#load").click (load);
+
+    background_hooks.push (draw_grid);
 
     start_main_loop ();
 }

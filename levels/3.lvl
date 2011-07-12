@@ -1,3 +1,4 @@
+// JavaScript
 path_followers.push (new Follower ('A', null, 100, canvas.height / 2,
 				   [[canvas.width - 100,
 				     canvas.height / 2]]));

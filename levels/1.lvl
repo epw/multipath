@@ -1,4 +1,4 @@
-/* JavaScript */
+// JavaScript
 path_followers.push (new Follower ('A', null, 50, 300,
 				   [[750, 300]]));
 for (var x = 200; x <= 600; x += 100) {

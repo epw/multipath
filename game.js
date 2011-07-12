@@ -4,8 +4,6 @@ var stop = false;
 
 var remaining = 0;
 
-var max_level = 3;
-
 function win () {
     game_messages.push (new Game_Msg("All levels completed!\n" +
 				     "You win!",
@@ -13,10 +11,8 @@ function win () {
     stop = true;
 }
 
-function parse_level (data, jqxhr) {
-    console.log (jqxhr);
-
-    if (data.search ("/* JavaScript */") == 0) {
+function parse_level (data) {
+    if (data.search ("// JavaScript") == 0) {
 	eval (data);
     } else {
 	path_followers = load_level (data);
@@ -28,7 +24,8 @@ function lookup_load_level () {
     game_messages = [];
     remaining = 0;
 
-    $.post ('levels/' + current_level + '.lvl', parse_level);
+    $.post ('levels/' + current_level + '.lvl', parse_level).error (
+	function () { console.log ("404"); } );
 }
 
 Follower.prototype.update =
@@ -82,15 +79,10 @@ Follower.prototype.update =
 		this.current_frame = "finished";
 		remaining--;
 		if (remaining == 0) {
-		    if (current_level == max_level) {
-			game_messages = [];
-			win ();
-		    } else {
-			game_messages.push
-			(new Game_Msg("All paths completed!\n" +
-				      "(Press Space to continue)",
-				      "white"));
-		    }
+		    game_messages.push
+		    (new Game_Msg("All paths completed!\n" +
+				  "(Press Space to continue)",
+				  "white"));
 		}
 	    }
 	    return;

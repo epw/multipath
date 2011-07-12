@@ -5,6 +5,7 @@ var stop = false;
 var remaining = 0;
 
 function win () {
+    current_level = "-";
     game_messages.push (new Game_Msg("All levels completed!\n" +
 				     "You win!",
 				     "rgb(0, 175, 0)"));
@@ -17,6 +18,12 @@ function parse_level (data) {
     } else {
 	path_followers = load_level (data);
     }
+
+    for (f in path_followers) {
+	if (path_followers[f].activate_key) {
+	    remaining++;
+	}
+    }
 }
 
 function lookup_load_level () {
@@ -24,8 +31,8 @@ function lookup_load_level () {
     game_messages = [];
     remaining = 0;
 
-    $.post ('levels/' + current_level + '.lvl', parse_level).error (
-	function () { console.log ("404"); } );
+    $.post ('levels/' + current_level + '.lvl', parse_level).error (win);
+
 }
 
 Follower.prototype.update =
@@ -74,7 +81,7 @@ Follower.prototype.update =
 		this.pathid = 0;
 		this.x = this.start[0];
 		this.y = this.start[1];
-	    } else {
+	    } else if (this.activate_key) {
 		this.finished = true;
 		this.current_frame = "finished";
 		remaining--;
@@ -84,6 +91,8 @@ Follower.prototype.update =
 				  "(Press Space to continue)",
 				  "white"));
 		}
+	    } else {
+		this.finished = true;
 	    }
 	    return;
 	}

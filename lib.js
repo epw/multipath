@@ -20,9 +20,6 @@ function Follower (activate_key, frames, x, y, path, loop) {
     }
     Game_Object.call (this, frames, 1, x, y, 0, "circle");
     this.activate_key = activate_key;
-    if (this.activate_key) {
-	remaining++;
-    }
     this.start = [x, y];
     if (loop != undefined) {
 	this.loop = loop;

@@ -1,3 +1,6 @@
 h1 { text-align: center }
 div.canvas { text-align: center }
 canvas { border: 5px outset lightgray }
+
+#gamecontrols { position: absolute }
+/*#levelcontrols { margin-left: -800px }*/

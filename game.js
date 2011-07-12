@@ -31,8 +31,15 @@ function lookup_load_level () {
     game_messages = [];
     remaining = 0;
 
-    $.post ('levels/' + current_level + '.lvl', parse_level).error (win);
+    $.post (level_directory + "/" + current_level + '.lvl', parse_level)
+	.error (win);
 
+}
+
+function selected_level (evt) {
+    level_directory = $("#levelset").val();
+    current_level = 1;
+    lookup_load_level ();
 }
 
 Follower.prototype.update =
@@ -144,8 +151,54 @@ function key_release (event) {
     }
 }
 
+function get_levels (data) {
+    var level_sets = JSON.parse (data);
+
+    for (var set in level_sets) {
+	var selected = false;
+	if (level_sets[set].directory == level_directory) {
+	    selected = true;
+	}
+	$("#levelset").append (new Option (level_sets[set].name,
+					   level_sets[set].directory,
+					   selected));
+	if (selected) {
+	    $("#levelset").val (level_sets[set].directory);
+	}
+    }
+}
+
+function get_query(parameter) { 
+    var loc = location.search.substring(1, location.search.length);
+    var param_value = false;
+    var params = loc.split("&");
+    for (i=0; i<params.length;i++) {
+	param_name = params[i].substring(0,params[i].indexOf('='));
+	if (param_name == parameter) {
+            param_value = params[i].substring(params[i].indexOf('=')+1);
+	}
+    }
+    if (param_value) {
+	return param_value;
+    }
+    else {
+	return false; //Here determine return if no parameter is found
+    }
+}
+
 function init () {
     canvas = document.getElementById("canvas");
+
+    level_directory = get_query ("levelset");
+    if (level_directory == "%28none%29") {
+	level_directory = prompt ("What level set?", "levels");
+	location.search = "?levelset=" + level_directory;
+    }
+    if (level_directory == false) {
+	level_directory = "levels";
+    }
+
+    $.post ("levels.json", get_levels);
 
     goal = load_image ("goal.png");
 

@@ -36,6 +36,14 @@ function lookup_load_level () {
 
 }
 
+function load_specific_level (specific_level) {
+    path_followers = [];
+    game_messages = [];
+    remaining = 0;
+
+    $.get("loose_levels/" + specific_level, parse_level);
+}
+
 function selected_level (evt) {
     level_directory = $("#levelset").val();
     current_level = 1;
@@ -105,6 +113,20 @@ Follower.prototype.update =
 	}
     };
 
+function first_level () {
+    if (isFinite (current_level)) {
+	current_level = 1;
+	lookup_load_level ();
+    } else {
+	load_specific_level (current_level);
+    }
+}
+
+function next_level () {
+    current_level++;
+    lookup_load_level ();
+}
+
 function key_press (event) {
     keys[event.which] = true;
     keys[chr(event.which)] = true;
@@ -125,11 +147,9 @@ function key_press (event) {
     case KEY.SPACE:
 	if (collision) {
 	    collision = false;
-	    current_level = 1;
-	    lookup_load_level ();
+	    first_level ();
 	} else if (remaining == 0 && stop == false) {
-	    current_level++;
-	    lookup_load_level ();
+	    next_level ();
 	}
 	break;
     case KEY.RETURN:
@@ -146,7 +166,9 @@ function key_release (event) {
     keys[chr(event.which)] = false;
     switch (event.which) {
     case KEY.ESCAPE:
-	clearInterval (main_loop);
+	if (confirm ("Really kill main loop?\n(Will abandon your progress, but could help if there is a bug)")) {
+	    clearInterval (main_loop);
+	}
 	break;
     }
 }
@@ -179,6 +201,10 @@ function get_levelsets (data) {
 	$("#levelset").append (new Option (level_sets[set], level_sets[set],
 					   selected));
 
+	if (selected) {
+	    $("#levelset").val(level_sets[set]);
+	}
+
 	$.get ("levelsets/" + level_sets[set] + "/config", get_levelset);
     }
 }
@@ -202,7 +228,11 @@ function query_str(parameter) {
 }
 
 function init () {
+    var specific_level = false;
+
     canvas = document.getElementById("canvas");
+
+    goal = load_image ("goal.png");
 
     level_directory = query_str ("levelset");
     if (level_directory == "%28none%29") {
@@ -210,15 +240,22 @@ function init () {
 	location.search = "?levelset=" + level_directory;
     }
     if (level_directory == false) {
-	level_directory = "original";
+	specific_level = query_str ("level");
+	if (specific_level != false) {
+	    current_level = specific_level;
+	    load_specific_level (current_level);
+	} else {
+	    level_directory = "original";
+	}
     }
 
     $.get ("levelsets/", get_levelsets);
 
-    goal = load_image ("goal.png");
+    if (specific_level == false) {
 
-    current_level = 1;
-    lookup_load_level ();
+	current_level = 1;
+	lookup_load_level ();
+    }
 
     start_main_loop ();
 }

@@ -8,7 +8,9 @@ div.canvas { text-align: left; float: left; margin-right: 2em }
 div.controls { float: left; margin-right: 2em }
 #save { margin-top: 1.5em }
 
-#data { height: 10em }
+#data { height: 2em }
+#replacelevel { margin-top: 1em }
+#newdata { height: 10em }
 </style>
 <script type="text/javascript" src="jquery-1.5.min.js"></script>
 <script type="text/javascript" src="canvas-game.js"></script>
@@ -34,19 +36,28 @@ div.controls { float: left; margin-right: 2em }
     <span id="endpath">Finish path [.] or middle-click</span>
   </div>
   <div>
-    <input type="button" id="deletepath" value="Delete path" />
+    <input type="button" id="deletepath" value="Delete path [DEL]" />
   </div>
 </div>
 <div class="canvas">
 <canvas id="canvas" width="800" height="600"></canvas>
 </div>
-<div id="savedlevel">
-<div>Level data</div>
-<textarea id="data" readonly="readonly">
-</textarea>
-<div>
-<input type="button" id="clear" value="Clear" />
-<input type="button" id="load" value="Load" />
+<div id="levelstrings">
+  <div id="currentlevel">
+    <div>Current level data</div>
+    <textarea id="data" readonly="readonly"></textarea>
+    <div>
+      <input type="button" id="clear" value="Clear Level" />
+    </div>
+  </div>
+
+  <div id="replacelevel">
+    <div>Insert new level data:</div>
+    <textarea id="newdata"></textarea>
+    <div>
+      <input type="button" id="load" value="Load" />
+    </div>
+  </div>
 </div>
 </body>
 </html>

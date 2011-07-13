@@ -23,7 +23,6 @@ function save () {
 			   'path': path_followers[f].path});
     }
     $("#data").val (JSON.stringify (saved_level));
-    $("#savedlevel").css ("display", "block");
 }
 
 function press_button (id) {
@@ -300,14 +299,12 @@ function draw_grid (ctx) {
 
 function clear (evt) {
     $("#data").val ("");
-    $("#data").attr ("readonly", "");
     path_followers = [];
 }
 
 function load (evt) {
-    $("#data").attr ("readonly", "readonly");
-
-    path_followers = load_level ($("#data").val());
+    path_followers = load_level ($("#newdata").val());
+    save ();
 }
 
 function key_press (event) {
@@ -331,9 +328,6 @@ function key_release (event) {
 	}
     }
     switch (event.which) {
-    case KEY.ESCAPE:
-	clearInterval (main_loop);
-	break;
     case ord('N'):
 	if (defining_new_path == false && editing == null) {
 	    prepare_new_path ();
@@ -384,7 +378,11 @@ function init () {
 			       clear ();
 			   }
 		       });
-    $("#load").click (load);
+    $("#load").click (function () {
+			  if (confirm ("Really load level (clearing the current one)?")) {
+			      load ();
+			  }
+		      });
 
     background_hooks.push (draw_grid);
 

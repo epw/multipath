@@ -31,7 +31,7 @@ function lookup_load_level () {
     game_messages = [];
     remaining = 0;
 
-    $.post (level_directory + "/" + current_level + '.lvl', parse_level)
+    $.get ("levelsets/" + level_directory + "/" + current_level + '.lvl', parse_level)
 	.error (win);
 
 }
@@ -151,24 +151,39 @@ function key_release (event) {
     }
 }
 
-function get_levels (data) {
-    var level_sets = JSON.parse (data);
+function get_levelset (data) {
+    var config = JSON.parse (data);
 
-    for (var set in level_sets) {
+    $("#levelset > *[value='" + config.directory + "']").text (config.name);
+}
+
+function parse_listing () {
+    return $(this).parent().siblings().first().text();
+}
+
+function get_levelsets (data) {
+    var level_sets = $(data).find("tr > td > img[alt='[DIR]']").map (parse_listing);
+
+    for (var set = 0; set < level_sets.length; set++) {
 	var selected = false;
-	if (level_sets[set].directory == level_directory) {
+
+	if (level_sets[set] == "Parent Directory") {
+	    continue;
+	}
+
+	level_sets[set] = level_sets[set].slice (0, -1);
+
+	if (level_sets[set] == level_directory) {
 	    selected = true;
 	}
-	$("#levelset").append (new Option (level_sets[set].name,
-					   level_sets[set].directory,
+	$("#levelset").append (new Option (level_sets[set], level_sets[set],
 					   selected));
-	if (selected) {
-	    $("#levelset").val (level_sets[set].directory);
-	}
+
+	$.get ("levelsets/" + level_sets[set] + "/config", get_levelset);
     }
 }
 
-function get_query(parameter) { 
+function query_str(parameter) { 
     var loc = location.search.substring(1, location.search.length);
     var param_value = false;
     var params = loc.split("&");
@@ -189,16 +204,16 @@ function get_query(parameter) {
 function init () {
     canvas = document.getElementById("canvas");
 
-    level_directory = get_query ("levelset");
+    level_directory = query_str ("levelset");
     if (level_directory == "%28none%29") {
-	level_directory = prompt ("What level set?", "levels");
+	level_directory = prompt ("What level set?", "original");
 	location.search = "?levelset=" + level_directory;
     }
     if (level_directory == false) {
-	level_directory = "levels";
+	level_directory = "original";
     }
 
-    $.post ("levels.json", get_levels);
+    $.get ("levelsets/", get_levelsets);
 
     goal = load_image ("goal.png");
 

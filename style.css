@@ -2,5 +2,10 @@ h1 { text-align: center }
 div.canvas { text-align: center }
 canvas { border: 5px outset lightgray }
 
+a { text-decoration: none }
+
 #gamecontrols { position: absolute }
-/*#levelcontrols { margin-left: -800px }*/
+#levelinfo { width: 800px; margin-left: auto; margin-right: auto;
+	     margin-top: .5em }
+#level { text-align: left }
+span.label { font-weight: bold }

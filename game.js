@@ -177,6 +177,15 @@ function get_levelset (data) {
     var config = JSON.parse (data);
 
     $("#levelset > *[value='" + config.directory + "']").text (config.name);
+
+    console.log (config);
+
+    if (config.directory == level_directory) {
+	if (typeof (config["author"]) != "undefined") {
+	    $("#level").append ("<div><span class='label'>Author:</span> "
+				+ config.author + "</div>");
+	}
+    }
 }
 
 function parse_listing () {

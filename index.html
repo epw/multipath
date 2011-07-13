@@ -10,18 +10,25 @@
 <body>
 <h1>Multi-path</h1>
 <div id="gamecontrols">
-<div id="levelcontrols">
-<form action="" method="GET">
-<div>Level set:</div>
-<select id="levelset" name="levelset">
-<option value="(none)">&lt;Enter directly&gt;</option>
-</select>
-<div><input type="submit" value="Go" /></div>
-</form>
-</div>
+  <div id="levelcontrols">
+    <form action="" method="GET">
+      <div>Level set:</div>
+      <select id="levelset" name="levelset">
+	<option value="(none)">&lt;Enter directly&gt;</option>
+      </select>
+      <div><input type="submit" value="Go" /></div>
+    </form>
+  </div>
+  <div id="individuallevel">
+    <a href="loose_levels/">Choose individual level to play</a>
+  </div>
 </div>
 <div class="canvas">
 <canvas id="canvas" width="800" height="600"></canvas>
+<div id="levelinfo">
+<div id="level">
+</div>
+</div>
 </div>
 </body>
 </html>

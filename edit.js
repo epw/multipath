@@ -389,6 +389,13 @@ function init () {
 
     $("#author").change (save);
 
+    $("#back").click (function () {
+			  if (confirm ("Really to back (clearing current level)?")) {
+			      return true;
+			  }
+			  return false;
+		      });
+
     background_hooks.push (draw_grid);
 
     start_main_loop ();

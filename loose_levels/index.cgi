@@ -12,6 +12,7 @@ print """Content-type: text/html
 </head>
 <body>
 <h1>Choose Level to Play</h1>
+<div><a href="../">Back to Fluvia</a></div>
 <ul>
 """
 
@@ -21,6 +22,7 @@ for filename in os.listdir ("."):
 
 print """
 </ul>
+<div><a href="../">Back to Fluvia</a></div>
 </body>
 </html>
 """

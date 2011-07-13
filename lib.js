@@ -89,10 +89,11 @@ function load_level (string) {
 
     var path_followers = [];
 
-    for (d in data) {
-	var f = new Follower (data[d]["activate_key"], null,data[d]["start"][0],
-			      data[d]["start"][1], data[d]["path"],
-			      data[d]["loop"]);
+    for (d in data.paths) {
+	var f = new Follower (data.paths[d]["activate_key"], null,
+			      data.paths[d]["start"][0],
+			      data.paths[d]["start"][1], data.paths[d]["path"],
+			      data.paths[d]["loop"]);
 	path_followers.push (f);
     }
 

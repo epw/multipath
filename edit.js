@@ -15,12 +15,12 @@ var making_loops = false;
 var deleting = false;
 
 function save () {
-    var saved_level = [];
+    var saved_level = {"paths": []};
     for (f in path_followers) {
-	saved_level.push ({'start': path_followers[f].start,
-			   'activate_key': path_followers[f].activate_key,
-			   'loop': path_followers[f].loop,
-			   'path': path_followers[f].path});
+	saved_level.paths.push ({'start': path_followers[f].start,
+				 'activate_key': path_followers[f].activate_key,
+				 'loop': path_followers[f].loop,
+				 'path': path_followers[f].path});
     }
     $("#data").val (JSON.stringify (saved_level));
 }

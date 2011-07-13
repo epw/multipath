@@ -6,13 +6,16 @@
 div.canvas { text-align: left; float: left; margin-right: 2em }
 
 div.controls { float: left; margin-right: 2em }
+
+div.metadata { margin-top: 2em }
+
 #save { margin-top: 1.5em }
 
 #data { height: 2em }
 #replacelevel { margin-top: 1em }
 #newdata { height: 10em }
 </style>
-<script type="text/javascript" src="jquery-1.5.min.js"></script>
+<script type="text/javascript" src="jquery-latest.min.js"></script>
 <script type="text/javascript" src="canvas-game.js"></script>
 <script type="text/javascript" src="lib.js"></script>
 <script type="text/javascript" src="edit.js"></script>
@@ -37,6 +40,9 @@ div.controls { float: left; margin-right: 2em }
   </div>
   <div>
     <input type="button" id="deletepath" value="Delete path [DEL]" />
+  </div>
+  <div class="metadata">
+    <span class="label">Author:</span> <input type="text" id="author" /></span>
   </div>
 </div>
 <div class="canvas">

@@ -87,6 +87,8 @@ Follower.prototype.draw_path =
 function load_level (string) {
     var data = JSON.parse (string);
 
+    var level_data = {};
+
     var path_followers = [];
 
     for (d in data.paths) {
@@ -97,7 +99,15 @@ function load_level (string) {
 	path_followers.push (f);
     }
 
-    return path_followers;
+    for (d in data) {
+	if (d != "paths") {
+	    level_data[d] = data[d];
+	}
+    }
+
+    level_data.paths = path_followers;
+
+    return level_data;
 }
 
 function log (s) {

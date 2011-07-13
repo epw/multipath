@@ -16,6 +16,9 @@ var deleting = false;
 
 function save () {
     var saved_level = {"paths": []};
+    if ($("#author").val() != "") {
+	saved_level.author = $("#author").val();
+    }
     for (f in path_followers) {
 	saved_level.paths.push ({'start': path_followers[f].start,
 				 'activate_key': path_followers[f].activate_key,
@@ -93,7 +96,6 @@ function prepare_new_path (evt) {
     defining_new_path = true;
     canvas.style.cursor = "crosshair";
 
-    $("#newpath").attr ('disabled', 'disabled');
 }
 function end_path (evt) {
 /* Code for finish path as button. Does not seem to work.
@@ -103,7 +105,6 @@ function end_path (evt) {
     }
 */
     editing = null;
-    $("#newpath").attr ('disabled', '');
     activationkey = null;
 
     save ();
@@ -303,7 +304,11 @@ function clear (evt) {
 }
 
 function load (evt) {
-    path_followers = load_level ($("#newdata").val());
+    level_data = load_level ($("#newdata").val());
+    path_followers = level_data.paths;
+    if (typeof(level_data["author"]) != "undefined") {
+	$("#author").val (level_data.author);
+    }
     save ();
 }
 
@@ -331,10 +336,8 @@ function key_release (event) {
     case ord('N'):
 	if (defining_new_path == false && editing == null) {
 	    prepare_new_path ();
-	} else if (editing == null) {
 	} else {
 	    defining_new_path = false;
-	    $("#newpath").attr ('disabled', '');
 	    canvas.style.cursor = "auto";
 	    activationkey = null;
 	}
@@ -383,6 +386,8 @@ function init () {
 			      load ();
 			  }
 		      });
+
+    $("#author").change (save);
 
     background_hooks.push (draw_grid);
 

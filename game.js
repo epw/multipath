@@ -16,7 +16,8 @@ function parse_level (data) {
     if (data.search ("// JavaScript") == 0) {
 	eval (data);
     } else {
-	path_followers = load_level (data);
+	level_data = load_level (data);
+	path_followers = level_data.paths;
     }
 
     for (f in path_followers) {

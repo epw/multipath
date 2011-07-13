@@ -4,12 +4,30 @@ var stop = false;
 
 var remaining = 0;
 
+var levelset_data = {};
+var level_data = {};
+
 function win () {
     current_level = "-";
     game_messages.push (new Game_Msg("All levels completed!\n" +
 				     "You win!",
 				     "rgb(0, 175, 0)"));
     stop = true;
+}
+
+function display_field (field, label) {
+    if (typeof (level_data[field]) != "undefined") {
+	$("#level").append ("<div><span class='label'>" + label + ":</span> "
+			    + level_data[field] + "</div>");
+    } else if (typeof (levelset_data[field]) != "undefined") {
+	$("#level").append ("<div><span class='label'>" + label + ":</span> "
+			    + levelset_data[field] + "</div>");
+    }
+}
+
+function display_level_data () {
+    $("#level").html ("");
+    display_field ("author", "Author");
 }
 
 function parse_level (data) {
@@ -25,6 +43,8 @@ function parse_level (data) {
 	    remaining++;
 	}
     }
+
+    display_level_data ();
 }
 
 function lookup_load_level () {
@@ -180,11 +200,9 @@ function get_levelset (data) {
     $("#levelset > *[value='" + config.directory + "']").text (config.name);
 
     if (config.directory == level_directory) {
-	if (typeof (config["author"]) != "undefined") {
-	    $("#level").append ("<div><span class='label'>Author:</span> "
-				+ config.author + "</div>");
-	}
+	levelset_data = config;
     }
+    display_level_data ();
 }
 
 function parse_listing () {

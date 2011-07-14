@@ -17,7 +17,6 @@ function win () {
 
 function play_music (song) {
     level_music = new Audio ("music/" + song);
-    level_music.addEventListener ("load", function () { console.log (this); });
     level_music.play();
 }
 

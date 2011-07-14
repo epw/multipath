@@ -165,6 +165,13 @@ function remove_last_vertex (evt) {
 }
 
 function mouse_down (event) {
+    if (typeof(event.offsetX) == "undefined") {
+	event.offsetX = event.pageX - canvas.offsetLeft;
+    }
+    if (typeof(event.offsetY) == "undefined") {
+	event.offsetY = event.pageY - canvas.offsetTop;
+    }
+
     var mouse_x = event.offsetX - 5;
     var mouse_y = event.offsetY - 5;
 
@@ -229,6 +236,13 @@ function mouse_down (event) {
 }
 
 function mouse_motion (event) {
+    if (typeof(event.offsetX) == "undefined") {
+	event.offsetX = event.pageX - canvas.offsetLeft;
+    }
+    if (typeof(event.offsetY) == "undefined") {
+	event.offsetY = event.pageY - canvas.offsetTop;
+    }
+
     var mouse_x = event.offsetX - 5;
     var mouse_y = event.offsetY - 5;
 

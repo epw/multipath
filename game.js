@@ -17,6 +17,7 @@ function win () {
 
 function play_music (song) {
     level_music = new Audio ("music/" + song);
+    level_music.loop =  true;
     level_music.play();
 }
 

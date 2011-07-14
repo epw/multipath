@@ -117,7 +117,7 @@ Follower.prototype.update =
 	    }
 	    if (this.touching (path_followers[f])) {
 		collision = true;
-		game_messages.push (new Game_Msg ("Collision!\n(Press Space to restart)", "red"));
+		game_messages.push (new Game_Msg ("Collision!\n(Press Space or N to restart)", "red"));
 		this.current_frame = "collision";
 		this.stopped = true;
 		path_followers[f].current_frame = "collision";
@@ -137,7 +137,7 @@ Follower.prototype.update =
 		if (remaining == 0) {
 		    game_messages.push
 		    (new Game_Msg("All paths completed!\n" +
-				  "(Press Space to continue)",
+				  "(Press Space or N to continue)",
 				  "white"));
 		}
 	    } else {
@@ -178,6 +178,7 @@ function key_press (event) {
 	    game_messages.push (new Game_Msg ("Paused", "yellow"));
 	}
 	break;
+    case ord('N'):
     case KEY.SPACE:
 	if (collision) {
 	    collision = false;

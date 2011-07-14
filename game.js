@@ -27,7 +27,7 @@ function display_field (field, label) {
 
 function display_level_data () {
     $("#level").html ("");
-    display_field ("author", "Author");
+    display_field ("author", "Level Author");
 }
 
 function parse_level (data) {

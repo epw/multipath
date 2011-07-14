@@ -15,19 +15,33 @@ function win () {
     stop = true;
 }
 
-function display_field (field, label) {
-    if (typeof (level_data[field]) != "undefined") {
-	$("#level").append ("<div><span class='label'>" + label + ":</span> "
-			    + level_data[field] + "</div>");
-    } else if (typeof (levelset_data[field]) != "undefined") {
-	$("#level").append ("<div><span class='label'>" + label + ":</span> "
-			    + levelset_data[field] + "</div>");
+function play_music (song) {
+    level_music = new Audio ("music/" + song);
+    level_music.addEventListener ("load", function () { console.log (this); });
+    level_music.play();
+}
+
+function get_option (option) {
+    if (typeof (level_data[option]) != "undefined") {
+	return level_data[option];
+    } else if (typeof (levelset_data[option]) != "undefined") {
+	return levelset_data[option];
     }
+    return null;
+}
+
+function display_field (field, label) {
+    $("#level").append ("<div><span class='label'>" + label + ":</span> "
+			+ get_option (field) + "</div>");
 }
 
 function display_level_data () {
     $("#level").html ("");
     display_field ("author", "Level Author");
+
+    if (typeof (level_data["music"]) != "undefined") {
+	play_music (level_data["music"]);
+    }
 }
 
 function parse_level (data) {
@@ -201,6 +215,9 @@ function get_levelset (data) {
 
     if (config.directory == level_directory) {
 	levelset_data = config;
+	if (typeof(levelset_data["music"]) != "undefined") {
+	    play_music (levelset_data.music);
+	}
     }
     display_level_data ();
 }
@@ -253,8 +270,28 @@ function query_str(parameter) {
     }
 }
 
+function mute () {
+    if (level_music) {
+	level_music.pause ();
+    }
+    $("#mute").css ("display", "none");
+    $("#unmute").css ("display", "inline");
+}
+
+function unmute () {
+    if (level_music) {
+	level_music.play ();
+    }
+    $("#mute").css ("display", "inline");
+    $("#unmute").css ("display", "none");
+}
+
 function init () {
     var specific_level = false;
+
+    $("#mute").click (mute);
+    $("#unmute").click (unmute);
+    $("#unmute").css ("display", "none");
 
     canvas = document.getElementById("canvas");
 

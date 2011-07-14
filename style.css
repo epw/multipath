@@ -10,6 +10,8 @@ a { text-decoration: none }
 #level { text-align: left }
 span.label { font-weight: bold }
 
+div.mute { margin-top: 2em }
+
 div.editor { margin-top: 2em }
 
 #about { margin-top: 2em }

@@ -3,6 +3,7 @@ div.canvas { text-align: center }
 canvas { border: 5px outset lightgray }
 
 a { text-decoration: none }
+a:visited { color: blue }
 
 #gamecontrols { position: absolute }
 #levelinfo { width: 800px; margin-left: auto; margin-right: auto;
@@ -18,6 +19,7 @@ div.load { margin-top: 1em }
 a.loadtext { display: block }
 div.loadhidden { display: none }
 #load { display: block }
+div.directions { color: gray }
 
 #about { margin-top: 2em }
 

@@ -159,6 +159,8 @@ function first_level () {
 function restart_level () {
     if (isFinite (current_level)) {
 	lookup_load_level ();
+    } else if (current_level == "[direct]") {
+	load_and_parse_level ();
     } else {
 	load_specific_level (current_level);
     }
@@ -294,12 +296,29 @@ function unmute () {
     $("#unmute").css ("display", "none");
 }
 
+function unhide_loading () {
+    $("div.loadhidden").css ("display", "block");
+    $("#directlevel").val("");
+}
+
+function load_and_parse_level () {
+    path_followers = [];
+    game_messages = [];
+    remaining = 0;
+
+    current_level = "[direct]";
+    parse_level ($("#directlevel").val());
+}
+
 function init () {
     var specific_level = false;
 
     $("#mute").click (mute);
     $("#unmute").click (unmute);
     $("#unmute").css ("display", "none");
+
+    $("#loadtext").click (unhide_loading);
+    $("#load").click (load_and_parse_level);
 
     canvas = document.getElementById("canvas");
 

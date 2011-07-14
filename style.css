@@ -11,3 +11,9 @@ a { text-decoration: none }
 span.label { font-weight: bold }
 
 div.editor { margin-top: 2em }
+
+#about { margin-top: 2em }
+
+div.about { width: 90%; margin-left: 5% }
+
+div.by { margin-top: 2em; padding-top: .5em; border-top: thin solid gray; font-style: italic }

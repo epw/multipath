@@ -14,6 +14,11 @@ div.mute { margin-top: 2em }
 
 div.editor { margin-top: 2em }
 
+div.load { margin-top: 1em }
+a.loadtext { display: block }
+div.loadhidden { display: none }
+#load { display: block }
+
 #about { margin-top: 2em }
 
 div.about { width: 90%; margin-left: 5% }

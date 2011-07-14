@@ -156,6 +156,14 @@ function first_level () {
     }
 }
 
+function restart_level () {
+    if (isFinite (current_level)) {
+	lookup_load_level ();
+    } else {
+	load_specific_level (current_level);
+    }
+}
+
 function next_level () {
     current_level++;
     lookup_load_level ();
@@ -182,7 +190,7 @@ function key_press (event) {
     case KEY.SPACE:
 	if (collision) {
 	    collision = false;
-	    first_level ();
+	    restart_level ();
 	} else if (remaining == 0 && stop == false) {
 	    next_level ();
 	}

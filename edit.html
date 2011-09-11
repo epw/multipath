@@ -8,6 +8,8 @@ div.canvas { text-align: left; float: left; margin-right: 2em }
 div.controls { float: left; margin-right: 2em }
 
 div.metadata { margin-top: 2em }
+div.submission { margin-top: 2em }
+#submit { font-size: 105% }
 
 #save { margin-top: 1.5em }
 
@@ -36,16 +38,24 @@ div.back { clear: left; padding-top: 2em }
     <input type="button" id="grid" value="Snap Grid [G]" />
   </div>
   <div>
-    <input type="button" id="makeloops" value="Make loops" />
+    <input type="button" id="makeloops" value="Make loops [L]" />
   </div>
   <div>
-    <span id="endpath">Finish path [.] or middle-click</span>
+    <span id="endpath">Finish path [.], [Enter], or
+    middle-click</span>
   </div>
   <div>
     <input type="button" id="deletepath" value="Delete path [DEL]" />
   </div>
   <div class="metadata">
     <span class="label">Author:</span> <input type="text" id="author" /></span>
+  </div>
+  <div class="submission">
+    <form method="POST"
+	  action="http://users.wpi.edu/~epw/fluvia_upload.cgi">
+      <input type="hidden" id="leveldata" name="level" value="" />
+      <input type="submit" id="submit" value="Submit Level" />
+    </form>
   </div>
 </div>
 <div class="canvas">

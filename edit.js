@@ -93,6 +93,11 @@ function prepare_new_path (evt) {
 	delete_choose (null);
     }
 
+    if (editing) {
+	end_path ();
+	return;
+    }
+
     defining_new_path = true;
     canvas.style.cursor = "crosshair";
 
@@ -326,9 +331,22 @@ function load (evt) {
     save ();
 }
 
+function submit_level (evt) {
+    save ();
+    if (confirm ("Really submit level?")) {
+	$("#leveldata").val ($("#data").val());
+    } else {
+	return false;
+    }
+}
+
 function key_press (event) {
     keys[event.which] = true;
     keys[chr(event.which)] = true;
+    if (event.currentTarget.activeElement.tagName == "INPUT"
+	|| event.currentTarget.activeElement.tagName == "TEXTAREA") {
+	return;
+    }
     switch (event.which) {
     case KEY.SHIFT:
 	angle_lock = false;
@@ -340,6 +358,10 @@ function key_press (event) {
 function key_release (event) {
     keys[event.which] = false;
     keys[chr(event.which)] = false;
+    if (event.currentTarget.activeElement.tagName == "INPUT"
+	|| event.currentTarget.activeElement.tagName == "TEXTAREA") {
+	return;
+    }
     if (POSSIBLE_KEYS.indexOf (chr(event.which)) != -1) {
 	if (!keys[KEY.CONTROL]) {
 	    activationkey = chr(event.which);
@@ -347,17 +369,19 @@ function key_release (event) {
 	}
     }
     switch (event.which) {
+    case KEY.RETURN:
     case ord('N'):
 	if (defining_new_path == false && editing == null) {
 	    prepare_new_path ();
 	} else {
-	    defining_new_path = false;
-	    canvas.style.cursor = "auto";
-	    activationkey = null;
+	    end_path();
 	}
 	break;	
     case ord('G'):
 	toggle_grid ();
+	break;
+    case ord('L'):
+	make_loops ();
 	break;
     case KEY.DELETE:
 	delete_choose ();
@@ -402,6 +426,7 @@ function init () {
 		      });
 
     $("#author").change (save);
+    $("#submit").click (submit_level);
 
     $("#back").click (function () {
 			  if (confirm ("Really to back (clearing current level)?")) {
